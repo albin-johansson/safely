@@ -39,3 +39,16 @@
 
 # debug information files
 *.dwo
+
+# macOS folder settings
+.DS_Store
+
+# IDE files
+.vs
+.vscode
+.idea
+.fleet
+
+# Build output
+build
+cmake-build-*
