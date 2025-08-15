@@ -1,15 +1,20 @@
 #pragma once
 
+#include <cstdint>
 #include <limits>
 #include <type_traits>
-
-#if __has_include(<stdckdint.h>)
-  #include <stdckdint.h>
-#endif
 
 #include <safely/detail/traits.hpp>
 #include <safely/error.hpp>
 #include <safely/predef.hpp>
+
+#if SAFELY_HAS_STDCKDINT
+  #include <stdckdint.h>
+#endif
+
+#if SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
+  #include <intrin.h>
+#endif
 
 namespace safely {
 namespace detail {
@@ -63,6 +68,52 @@ template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
   return error;
 }
 
+#if SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
+
+template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+[[nodiscard]] constexpr auto msvc_add_overflow(const T lhs,
+                                               const T rhs,
+                                               T& sum) noexcept -> errc
+{
+  static_assert(sizeof(T) <= sizeof(std::int64_t));
+
+  if constexpr (sizeof(T) == sizeof(std::int8_t)) {
+    return _add_overflow_i8(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+  else if constexpr (sizeof(T) == sizeof(std::int16_t)) {
+    return _add_overflow_i16(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+  else if constexpr (sizeof(T) == sizeof(std::int32_t)) {
+    return _add_overflow_i32(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+  else /* if constexpr (sizeof(T) == sizeof(std::int64_t)) */ {
+    return _add_overflow_i64(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+}
+
+template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+[[nodiscard]] constexpr auto msvc_add_overflow(const T lhs,
+                                               const T rhs,
+                                               T& sum) noexcept -> errc
+{
+  static_assert(sizeof(T) <= sizeof(std::uint64_t));
+
+  if constexpr (sizeof(T) == sizeof(std::uint8_t)) {
+    return _addcarry_u8(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+  else if constexpr (sizeof(T) == sizeof(std::uint16_t)) {
+    return _addcarry_u16(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+  else if constexpr (sizeof(T) == sizeof(std::uint32_t)) {
+    return _addcarry_u32(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+  else /* if constexpr (sizeof(T) == sizeof(std::uint64_t)) */ {
+    return _addcarry_u64(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  }
+}
+
+#endif
+
 }  // namespace detail
 
 /// Performs checked addition of two integers.
@@ -78,15 +129,15 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto add(const T lhs, const T rhs, T& sum) noexcept
     -> errc
 {
-#ifndef SAFELY_NO_INTRINSICS
-  #if __STDC_VERSION_STDCKDINT_H__ >= 202311L
+#if SAFELY_HAS_STDCKDINT
   return ckd_add(&sum, lhs, rhs) ? errc::overflow : errc::ok;
-  #elif defined(__has_builtin) && __has_builtin(__builtin_add_overflow)
+#elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
   return __builtin_add_overflow(lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  #endif
-#endif
-
+#elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
+  return detail::msvc_add_overflow(lhs, rhs, sum);
+#else
   return detail::slow_add(lhs, rhs, sum);
+#endif
 }
 
 }  // namespace safely
