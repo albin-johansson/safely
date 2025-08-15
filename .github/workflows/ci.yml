@@ -3,9 +3,6 @@ name: CI
 on:
   - push
 
-env:
-  VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
-
 jobs:
   macos-build-and-test:
     runs-on: macos-15
@@ -29,12 +26,14 @@ jobs:
 
       - name: Update Vcpkg
         run: |
-          cd ${{env.VCPKG_ROOT}}
+          cd ${{env.VCPKG_INSTALLATION_ROOT}}
           git fetch
           git checkout aeac3fa8d321bf9451d8dfacc62a476b5a956916
           ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
       - name: Generate build files
+        env:
+          VCPKG_ROOT: ${{env.VCPKG_INSTALLATION_ROOT}}
         run: |
           mkdir build
           cd build
@@ -74,12 +73,14 @@ jobs:
 
       - name: Update Vcpkg
         run: |
-          cd ${{env.VCPKG_ROOT}}
+          cd ${{env.VCPKG_INSTALLATION_ROOT}}
           git fetch
           git checkout aeac3fa8d321bf9451d8dfacc62a476b5a956916
           ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
       - name: Generate build files
+        env:
+          VCPKG_ROOT: ${{env.VCPKG_INSTALLATION_ROOT}}
         run: |
           mkdir build
           cd build
@@ -112,12 +113,14 @@ jobs:
 
       - name: Update Vcpkg
         run: |
-          cd ${{env.VCPKG_ROOT}}
+          cd ${{env.VCPKG_INSTALLATION_ROOT}}
           git fetch
           git checkout aeac3fa8d321bf9451d8dfacc62a476b5a956916
           .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
 
       - name: Generate build files
+        env:
+          VCPKG_ROOT: ${{env.VCPKG_INSTALLATION_ROOT}}
         run: |
           mkdir build
           cd build
