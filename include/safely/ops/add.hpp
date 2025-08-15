@@ -22,8 +22,8 @@ namespace detail {
 // Validate a signed integer addition.
 // See SEI CERT C Coding Standard INT32-C.
 template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto slow_validate_add(const T lhs,
-                                               const T rhs) noexcept -> errc
+[[nodiscard]] constexpr auto generic_validate_add(const T lhs,
+                                                  const T rhs) noexcept -> errc
 {
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
@@ -42,8 +42,8 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
 // Validate an unsigned integer addition.
 // See SEI CERT C Coding Standard INT30-C.
 template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto slow_validate_add(const T lhs,
-                                               const T rhs) noexcept -> errc
+[[nodiscard]] constexpr auto generic_validate_add(const T lhs,
+                                                  const T rhs) noexcept -> errc
 {
   constexpr auto t_max = std::numeric_limits<T>::max();
 
@@ -56,10 +56,11 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 
 // Perform a checked integer addition.
 template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto slow_add(const T lhs, const T rhs, T& sum) noexcept
-    -> errc
+[[nodiscard]] constexpr auto generic_add(const T lhs,
+                                         const T rhs,
+                                         T& sum) noexcept -> errc
 {
-  const auto error = slow_validate_add(lhs, rhs);
+  const auto error = generic_validate_add(lhs, rhs);
 
   if (error == errc::ok) SAFELY_ATTR_LIKELY {
     sum = static_cast<T>(lhs + rhs);
@@ -136,7 +137,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
   return detail::msvc_add_overflow(lhs, rhs, sum);
 #else
-  return detail::slow_add(lhs, rhs, sum);
+  return detail::generic_add(lhs, rhs, sum);
 #endif
 }
 
