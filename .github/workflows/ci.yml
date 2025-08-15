@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  - push
+
+env:
+  VCPKG_ROOT: ${{VCPKG_INSTALLATION_ROOT}}
+
+jobs:
+  macos-build-and-test:
+    runs-on: macos-15
+    strategy:
+      fail-fast: true
+      matrix:
+        CXX_STANDARD: [ 17, 20, 23 ]
+        ENABLE_INTRINSICS: [ ON, OFF ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_16.4.app
+
+      - name: Install system dependencies
+        run: |
+          brew update
+          brew install cmake
+          brew install ninja
+
+      - name: Update Vcpkg
+        run: |
+          cd ${{env.VCPKG_ROOT}}
+          git fetch
+          git checkout aeac3fa8d321bf9451d8dfacc62a476b5a956916
+          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Generate build files
+        run: |
+          mkdir build
+          cd build
+          cmake .. --preset=default-debug \
+                   --log-level=DEBUG \
+                   -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
+                   -DCMAKE_CXX_STANDARD=${{matrix.CXX_STANDARD}} \
+                   -DSAFELY_ENABLE_TESTS=ON \
+                   -DSAFELY_ENABLE_INTRINSICS=${{matrix.ENABLE_INTRINSICS}}
+
+      - name: Build
+        run: |
+          ninja -C build
+
+      - name: Run tests
+        working-directory: ./build/debug
+        run: |
+          ./safely_tests
+
+  ubuntu-build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        CXX_STANDARD: [ 17, 20, 23 ]
+        ENABLE_INTRINSICS: [ ON, OFF ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt install ninja-build
+
+      - name: Use GCC 14
+        run: sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14
+
+      - name: Update Vcpkg
+        run: |
+          cd ${{env.VCPKG_ROOT}}
+          git fetch
+          git checkout aeac3fa8d321bf9451d8dfacc62a476b5a956916
+          ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Generate build files
+        run: |
+          mkdir build
+          cd build
+          cmake .. --preset=default-debug \
+                   --log-level=DEBUG \
+                   -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
+                   -DCMAKE_CXX_STANDARD=${{matrix.CXX_STANDARD}} \
+                   -DSAFELY_ENABLE_TESTS=ON \
+                   -DSAFELY_ENABLE_INTRINSICS=${{matrix.ENABLE_INTRINSICS}}
+
+      - name: Build
+        run: |
+          ninja -C build
+
+      - name: Run tests
+        working-directory: ./build/debug
+        run: |
+          ./safely_tests
+
+  windows-build-and-test:
+    runs-on: windows-2025
+    strategy:
+      fail-fast: true
+      matrix:
+        CXX_STANDARD: [ 17, 20, 23 ]
+        ENABLE_INTRINSICS: [ ON, OFF ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Update Vcpkg
+        run: |
+          cd ${{env.VCPKG_ROOT}}
+          git fetch
+          git checkout aeac3fa8d321bf9451d8dfacc62a476b5a956916
+          .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+
+      - name: Generate build files
+        run: |
+          mkdir build
+          cd build
+          cmake .. --preset=default-debug `
+                   --log-level=DEBUG `
+                   -DCMAKE_COMPILE_WARNING_AS_ERROR=ON `
+                   -DCMAKE_CXX_STANDARD=${{matrix.CXX_STANDARD}} `
+                   -DSAFELY_ENABLE_TESTS=ON `
+                   -DSAFELY_ENABLE_INTRINSICS=${{matrix.ENABLE_INTRINSICS}}
+
+      - name: Build
+        run: |
+          ninja -C build
+
+      - name: Run tests
+        working-directory: ./build/debug
+        run: |
+          .\safely_tests.exe
