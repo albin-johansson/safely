@@ -11,8 +11,13 @@ set_target_properties(safely_tests
                       )
 
 target_sources(safely_tests
+               PRIVATE FILE_SET HEADERS BASE_DIRS "${PROJECT_SOURCE_DIR}/tests"
+               FILES
+               "${PROJECT_SOURCE_DIR}/tests/common/types.hpp"
+
                PRIVATE
                "${PROJECT_SOURCE_DIR}/tests/detail/traits.test.cpp"
+               "${PROJECT_SOURCE_DIR}/tests/ops/add.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/safely_tests.main.cpp"
                )
 

@@ -3,4 +3,5 @@
 #pragma once
 
 #include <safely/error.hpp>
+#include <safely/ops/add.hpp>
 #include <safely/predef.hpp>
