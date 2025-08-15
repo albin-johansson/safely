@@ -89,7 +89,6 @@ TYPED_TEST(AddSignedTest, Underflow)
 {
   using T = TypeParam;
   constexpr auto t_min = Limits<T>::min();
-  constexpr auto t_max = Limits<T>::max();
 
   T sum {};
 
