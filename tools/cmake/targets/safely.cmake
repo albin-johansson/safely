@@ -12,6 +12,7 @@ set_target_properties(safely
 target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_DIR}/include"
                FILES
                "${PROJECT_SOURCE_DIR}/include/detail/traits.hpp"
+               "${PROJECT_SOURCE_DIR}/include/error.hpp"
                )
 
 target_compile_features(safely INTERFACE "cxx_std_17")
