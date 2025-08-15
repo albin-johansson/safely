@@ -13,6 +13,7 @@ target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_D
                FILES
                "${PROJECT_SOURCE_DIR}/include/detail/traits.hpp"
                "${PROJECT_SOURCE_DIR}/include/error.hpp"
+               "${PROJECT_SOURCE_DIR}/include/predef.hpp"
                )
 
 target_compile_features(safely INTERFACE "cxx_std_17")

@@ -189,3 +189,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 InsertNewlineAtEOF: true
 SortUsingDeclarations: Never
 RemoveParentheses: Leave
+
+AttributeMacros:
+  - SAFELY_ATTR_LIKELY
+  - SAFELY_ATTR_UNLIKELY
