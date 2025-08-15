@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "safely",
+  "license": "MIT",
+  "version-semver": "0.1.0",
+  "maintainers": [
+    "albin-johansson"
+  ],
+  "builtin-baseline": "aeac3fa8d321bf9451d8dfacc62a476b5a956916",
+  "dependencies": [],
+  "features": {
+    "tests": {
+      "description": "Enable tests",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
+}

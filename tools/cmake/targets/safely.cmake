@@ -1,0 +1,17 @@
+# Copyright (c) 2025 Albin Johansson
+
+add_library(safely INTERFACE)
+add_library(safely::headers ALIAS safely)
+
+set_target_properties(safely
+                      PROPERTIES
+                      PREFIX ""
+                      POSITION_INDEPENDENT_CODE "ON"
+                      )
+
+target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_DIR}/include"
+               FILES
+               "${PROJECT_SOURCE_DIR}/include/detail/traits.hpp"
+               )
+
+target_compile_features(safely INTERFACE "cxx_std_17")
