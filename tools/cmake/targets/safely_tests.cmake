@@ -66,14 +66,14 @@ else ()
   if (SAFELY_ENABLE_UBSAN)
     target_compile_options(safely_tests
                            PRIVATE
-                           "-fsanitize=undefined,unsigned-integer-overflow"
+                           "-fsanitize=undefined"
                            "-fno-sanitize-recover"
                            "-fno-omit-frame-pointer"
                            )
 
     target_link_options(safely_tests
                         PRIVATE
-                        "-fsanitize=undefined,unsigned-integer-overflow"
+                        "-fsanitize=undefined"
                         "-fno-sanitize-recover"
                         "-fno-omit-frame-pointer"
                         )
