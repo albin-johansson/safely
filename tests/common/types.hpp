@@ -3,14 +3,10 @@
 #pragma once
 
 #include <cstdint>
-#include <limits>
 
 #include <gtest/gtest.h>
 
 namespace safely::tests {
-
-template <typename T>
-using Limits = std::numeric_limits<T>;
 
 using SignedIntegerTypes = testing::Types<std::int8_t,   //
                                           std::int16_t,  //
