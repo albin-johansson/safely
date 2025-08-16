@@ -28,7 +28,7 @@ class AddTest : public testing::Test
   }
 };
 
-TYPED_TEST_SUITE(AddTest, IntegerTypes);
+TYPED_TEST_SUITE(AddTest, IntegerTypes, );
 
 TYPED_TEST(AddTest, Add)
 {
@@ -72,7 +72,7 @@ template <typename T>
 class AddSignedTest : public testing::Test
 {};
 
-TYPED_TEST_SUITE(AddSignedTest, SignedIntegerTypes);
+TYPED_TEST_SUITE(AddSignedTest, SignedIntegerTypes, );
 
 TYPED_TEST(AddSignedTest, Add)
 {

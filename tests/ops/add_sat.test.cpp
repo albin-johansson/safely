@@ -14,7 +14,7 @@ template <typename T>
 class AddSatTest : public testing::Test
 {};
 
-TYPED_TEST_SUITE(AddSatTest, IntegerTypes);
+TYPED_TEST_SUITE(AddSatTest, IntegerTypes, );
 
 TYPED_TEST(AddSatTest, AddSat)
 {
@@ -57,7 +57,7 @@ template <typename T>
 class AddSatSignedTest : public testing::Test
 {};
 
-TYPED_TEST_SUITE(AddSatSignedTest, SignedIntegerTypes);
+TYPED_TEST_SUITE(AddSatSignedTest, SignedIntegerTypes, );
 
 TYPED_TEST(AddSatSignedTest, AddSat)
 {
