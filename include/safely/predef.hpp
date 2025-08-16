@@ -27,18 +27,6 @@
     #define SAFELY_ATTR_UNLIKELY [[unlikely]]
   #endif
 
-#elif defined(__has_attribute)
-
-  #if __has_attribute(likely)
-    #undef SAFELY_ATTR_LIKELY
-    #define SAFELY_ATTR_LIKELY __attribute__((likely))
-  #endif
-
-  #if __has_attribute(unlikely)
-    #undef SAFELY_ATTR_UNLIKELY
-    #define SAFELY_ATTR_UNLIKELY __attribute__((unlikely))
-  #endif
-
 #endif
 
 #ifndef SAFELY_NO_INTRINSICS
