@@ -78,18 +78,17 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
                                                const T rhs,
                                                T& sum) noexcept -> errc
 {
-  static_assert(sizeof(T) <= sizeof(std::int64_t));
-
-  if constexpr (sizeof(T) == sizeof(std::int8_t)) {
+  if constexpr (std::is_same_v<T, std::int8_t>) {
     return _add_overflow_i8(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
-  else if constexpr (sizeof(T) == sizeof(std::int16_t)) {
+  else if constexpr (std::is_same_v<T, std::int16_t>) {
     return _add_overflow_i16(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
-  else if constexpr (sizeof(T) == sizeof(std::int32_t)) {
+  else if constexpr (std::is_same_v<T, std::int32_t>) {
     return _add_overflow_i32(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
-  else /* if constexpr (sizeof(T) == sizeof(std::int64_t)) */ {
+  else /* if constexpr (std::is_same_v<T, std::int64_t>) */ {
+    static_assert(std::is_same_v<T, std::int64_t>);
     return _add_overflow_i64(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
 }
@@ -99,18 +98,17 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
                                                const T rhs,
                                                T& sum) noexcept -> errc
 {
-  static_assert(sizeof(T) <= sizeof(std::uint64_t));
-
-  if constexpr (sizeof(T) == sizeof(std::uint8_t)) {
+  if constexpr (std::is_same_v<T, std::uint8_t>) {
     return _addcarry_u8(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
-  else if constexpr (sizeof(T) == sizeof(std::uint16_t)) {
+  else if constexpr (std::is_same_v<T, std::uint16_t>) {
     return _addcarry_u16(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
-  else if constexpr (sizeof(T) == sizeof(std::uint32_t)) {
+  else if constexpr (std::is_same_v<T, std::uint32_t>) {
     return _addcarry_u32(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
-  else /* if constexpr (sizeof(T) == sizeof(std::uint64_t)) */ {
+  else /* if constexpr (std::is_same_v<T, std::uint64_t>) */ {
+    static_assert(std::is_same_v<T, std::uint64_t>);
     return _addcarry_u64(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
   }
 }
