@@ -18,6 +18,12 @@ auto main(int argc, char* argv[]) -> int
   std::cout << "SAFELY_HAS_BUILTIN_ADD_OVERFLOW: "
             << SAFELY_HAS_BUILTIN_ADD_OVERFLOW << '\n';
 
+  std::cout << "SAFELY_HAS_BUILTIN_SUB_OVERFLOW: "
+            << SAFELY_HAS_BUILTIN_SUB_OVERFLOW << '\n';
+
+  std::cout << "SAFELY_HAS_BUILTIN_MUL_OVERFLOW: "
+            << SAFELY_HAS_BUILTIN_MUL_OVERFLOW << '\n';
+
   std::cout << "SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS: "
             << SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS << '\n';
 
