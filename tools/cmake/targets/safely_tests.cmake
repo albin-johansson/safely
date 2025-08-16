@@ -59,5 +59,6 @@ else ()
                          "-Wsign-conversion"
                          "-Wswitch-enum"
                          "-Wold-style-cast"
+                         "-Wno-c++20-attribute-extensions"
                          )
 endif ()
