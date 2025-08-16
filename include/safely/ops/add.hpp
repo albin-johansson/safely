@@ -116,6 +116,27 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 
 #endif
 
+template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+[[nodiscard]] constexpr auto generic_add_wrap(const T lhs, const T rhs) noexcept
+    -> T
+{
+  using UT = std::make_unsigned_t<T>;
+
+  // This assumes that signed integers use two's complement.
+  const auto u_lhs = static_cast<UT>(lhs);
+  const auto u_rhs = static_cast<UT>(rhs);
+
+  // Note, this is implementation defined.
+  return static_cast<T>(u_lhs + u_rhs);
+}
+
+template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+[[nodiscard]] constexpr auto generic_add_wrap(const T lhs, const T rhs) noexcept
+    -> T
+{
+  return static_cast<T>(lhs + rhs);
+}
+
 }  // namespace detail
 
 /// Performs checked addition of two integers.
@@ -140,6 +161,31 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 #else
   return detail::generic_add(lhs, rhs, sum);
 #endif
+}
+
+/// Performs addition of two integers, wrapping on overflow.
+///
+/// \param[in] lhs The first term.
+/// \param[in] rhs The second term.
+///
+/// \return
+/// The (potentially wrapped) sum of the terms.
+template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+[[nodiscard]] constexpr auto add_wrap(const T lhs, const T rhs) noexcept -> T
+{
+  T sum {};
+
+#if SAFELY_HAS_STDCKDINT
+  (void) ckd_add(&sum, lhs, rhs);
+#elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
+  (void) __builtin_add_overflow(lhs, rhs, &sum);
+#elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
+  (void) detail::msvc_add_overflow(lhs, rhs, sum);
+#else
+  sum = detail::generic_add_wrap(lhs, rhs);
+#endif
+
+  return sum;
 }
 
 /// Performs addition of two integers, saturating on overflow.
