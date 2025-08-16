@@ -11,6 +11,7 @@
 #include <safely/primitives.hpp>
 
 #if SAFELY_HAS_STDCKDINT
+  #include <stdbool.h>
   #include <stdckdint.h>
 #endif
 
