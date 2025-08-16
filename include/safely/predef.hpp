@@ -57,7 +57,8 @@
 
   #endif
 
-  #if _MSC_VER >= 1937  // Visual Studio 2022 17.7
+  // Visual Studio 2022 17.7 (x64/x86)
+  #if _MSC_VER >= 1937 && (defined(_M_X64) || defined(_M_IX86))
     #undef SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
     #define SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS 1
   #endif
