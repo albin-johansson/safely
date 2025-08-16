@@ -7,9 +7,7 @@
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
-#include <safely/error.hpp>
 #include <safely/predef.hpp>
-#include <safely/primitives.hpp>
 
 #if SAFELY_HAS_STDCKDINT
   #include <stdbool.h>
@@ -22,51 +20,53 @@ namespace detail {
 // Validate a signed integer addition.
 // See SEI CERT C Coding Standard INT32-C.
 template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto generic_validate_add(const T lhs,
-                                                  const T rhs) noexcept -> errc
+[[nodiscard]] constexpr auto generic_add_check_overflow(const T lhs,
+                                                        const T rhs) noexcept
+    -> bool
 {
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
   if (rhs > 0 && lhs > t_max - rhs) SAFELY_ATTR_UNLIKELY {
-    return errc::overflow;
+    return true;
   }
 
   if (rhs < 0 && lhs < t_min - rhs) SAFELY_ATTR_UNLIKELY {
-    return errc::overflow;
+    return true;
   }
 
-  return errc::ok;
+  return false;
 }
 
 // Validate an unsigned integer addition.
 // See SEI CERT C Coding Standard INT30-C.
 template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto generic_validate_add(const T lhs,
-                                                  const T rhs) noexcept -> errc
+[[nodiscard]] constexpr auto generic_add_check_overflow(const T lhs,
+                                                        const T rhs) noexcept
+    -> bool
 {
   constexpr auto t_max = std::numeric_limits<T>::max();
 
   if (lhs > t_max - rhs) SAFELY_ATTR_UNLIKELY {
-    return errc::overflow;
+    return true;
   }
 
-  return errc::ok;
+  return false;
 }
 
 // Perform a checked integer addition.
 template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto generic_add(const T lhs,
-                                         const T rhs,
-                                         T& sum) noexcept -> errc
+[[nodiscard]] constexpr auto generic_add_overflow(const T lhs,
+                                                  const T rhs,
+                                                  T& sum) noexcept -> bool
 {
-  const auto error = generic_validate_add(lhs, rhs);
+  const auto overflow = generic_add_check_overflow(lhs, rhs);
 
-  if (error == errc::ok) SAFELY_ATTR_LIKELY {
+  if (!overflow) SAFELY_ATTR_LIKELY {
     sum = static_cast<T>(lhs + rhs);
   }
 
-  return error;
+  return overflow;
 }
 
 template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
@@ -97,22 +97,23 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 /// \param[in]  lhs The first term.
 /// \param[in]  rhs The second term.
 /// \param[out] sum The destination of the result. This variable is left in an
-///                 unspecified state in the case of failure.
+///                 unspecified state if the addition would overflow.
 ///
 /// \return
-/// `ok` if successful; another error code otherwise.
+/// `true` if the addition would overflow; false otherwise.
 template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto add(const T lhs, const T rhs, T& sum) noexcept
-    -> errc
+[[nodiscard]] constexpr auto add_overflow(const T lhs,
+                                          const T rhs,
+                                          T& sum) noexcept -> bool
 {
 #if SAFELY_HAS_STDCKDINT
-  return ckd_add(&sum, lhs, rhs) ? errc::overflow : errc::ok;
+  return ckd_add(&sum, lhs, rhs);
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
-  return __builtin_add_overflow(lhs, rhs, &sum) ? errc::overflow : errc::ok;
+  return __builtin_add_overflow(lhs, rhs, &sum);
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  return detail::msvc_add_overflow(lhs, rhs, sum) ? errc::overflow : errc::ok;
+  return detail::msvc_add_overflow(lhs, rhs, sum);
 #else
-  return detail::generic_add(lhs, rhs, sum);
+  return detail::generic_add_overflow(lhs, rhs, sum);
 #endif
 }
 
@@ -154,7 +155,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (T sum {}; add(lhs, rhs, sum) == errc::ok) {
+  if (T sum {}; !add_overflow(lhs, rhs, sum)) {
     return sum;
   }
 

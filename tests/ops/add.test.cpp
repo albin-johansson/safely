@@ -11,29 +11,29 @@ namespace safely::tests {
 namespace {
 
 template <typename T>
-class AddTest : public testing::Test
+class AddOverflowTest : public testing::Test
 {
  public:
   static void test_ok(const T lhs, const T rhs, const T expected_sum)
   {
     T sum {};
-    ASSERT_EQ(add(lhs, rhs, sum), errc::ok);
+    ASSERT_FALSE(add_overflow(lhs, rhs, sum));
     EXPECT_EQ(sum, expected_sum);
   }
 
-  static void test_err(const T lhs, const T rhs, const errc expected_error)
+  static void test_err(const T lhs, const T rhs)
   {
     T sum {};
-    EXPECT_EQ(add(lhs, rhs, sum), expected_error);
+    EXPECT_TRUE(add_overflow(lhs, rhs, sum));
   }
 };
 
-TYPED_TEST_SUITE(AddTest, IntegerTypes, );
+TYPED_TEST_SUITE(AddOverflowTest, IntegerTypes, );
 
-TYPED_TEST(AddTest, Add)
+TYPED_TEST(AddOverflowTest, AddOverflow)
 {
   using T = TypeParam;
-  using Self = AddTest<T>;
+  using Self = AddOverflowTest<T>;
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
@@ -56,28 +56,28 @@ TYPED_TEST(AddTest, Add)
   Self::test_ok(t_min, T {0}, t_min);
 
   // MAX + 1 => OVERFLOW
-  Self::test_err(t_max, T {1}, errc::overflow);
+  Self::test_err(t_max, T {1});
 
   // MAX + 2 => OVERFLOW
-  Self::test_err(t_max, T {2}, errc::overflow);
+  Self::test_err(t_max, T {2});
 
   // 1 + MAX => OVERFLOW
-  Self::test_err(T {1}, t_max, errc::overflow);
+  Self::test_err(T {1}, t_max);
 
   // MAX + MAX => OVERFLOW
-  Self::test_err(t_max, t_max, errc::overflow);
+  Self::test_err(t_max, t_max);
 }
 
 template <typename T>
-class AddSignedTest : public AddTest<T>
+class AddOverflowSignedTest : public AddOverflowTest<T>
 {};
 
-TYPED_TEST_SUITE(AddSignedTest, SignedIntegerTypes, );
+TYPED_TEST_SUITE(AddOverflowSignedTest, SignedIntegerTypes, );
 
-TYPED_TEST(AddSignedTest, Add)
+TYPED_TEST(AddOverflowSignedTest, AddOverflow)
 {
   using T = TypeParam;
-  using Self = AddSignedTest<T>;
+  using Self = AddOverflowSignedTest<T>;
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
@@ -94,16 +94,16 @@ TYPED_TEST(AddSignedTest, Add)
   Self::test_ok(t_min, t_max, T {-1});
 
   // MIN + -1 => OVERFLOW
-  Self::test_err(t_min, T {-1}, errc::overflow);
+  Self::test_err(t_min, T {-1});
 
   // MIN + -2 => OVERFLOW
-  Self::test_err(t_min, T {-2}, errc::overflow);
+  Self::test_err(t_min, T {-2});
 
   // -1 + MIN => OVERFLOW
-  Self::test_err(T {-1}, t_min, errc::overflow);
+  Self::test_err(T {-1}, t_min);
 
   // MIN + MIN => OVERFLOW
-  Self::test_err(t_min, t_min, errc::overflow);
+  Self::test_err(t_min, t_min);
 }
 
 }  // namespace
