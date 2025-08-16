@@ -69,7 +69,7 @@ TYPED_TEST(AddTest, Add)
 }
 
 template <typename T>
-class AddSignedTest : public testing::Test
+class AddSignedTest : public AddTest<T>
 {};
 
 TYPED_TEST_SUITE(AddSignedTest, SignedIntegerTypes, );
@@ -77,7 +77,7 @@ TYPED_TEST_SUITE(AddSignedTest, SignedIntegerTypes, );
 TYPED_TEST(AddSignedTest, Add)
 {
   using T = TypeParam;
-  using Self = AddTest<T>;
+  using Self = AddSignedTest<T>;
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 

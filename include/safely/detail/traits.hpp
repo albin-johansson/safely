@@ -2,75 +2,65 @@
 
 #pragma once
 
+#include <safely/primitives.hpp>
+
 namespace safely::detail {
 
 template <typename T>
 inline constexpr bool is_integer_v = false;
 
 template <>
-inline constexpr bool is_integer_v<unsigned char> = true;
+inline constexpr bool is_integer_v<u8> = true;
 
 template <>
-inline constexpr bool is_integer_v<unsigned short> = true;
+inline constexpr bool is_integer_v<u16> = true;
 
 template <>
-inline constexpr bool is_integer_v<unsigned int> = true;
+inline constexpr bool is_integer_v<u32> = true;
 
 template <>
-inline constexpr bool is_integer_v<unsigned long> = true;
+inline constexpr bool is_integer_v<u64> = true;
 
 template <>
-inline constexpr bool is_integer_v<unsigned long long> = true;
+inline constexpr bool is_integer_v<i8> = true;
 
 template <>
-inline constexpr bool is_integer_v<signed char> = true;
+inline constexpr bool is_integer_v<i16> = true;
 
 template <>
-inline constexpr bool is_integer_v<signed short> = true;
+inline constexpr bool is_integer_v<i32> = true;
 
 template <>
-inline constexpr bool is_integer_v<signed int> = true;
-
-template <>
-inline constexpr bool is_integer_v<signed long> = true;
-
-template <>
-inline constexpr bool is_integer_v<signed long long> = true;
+inline constexpr bool is_integer_v<i64> = true;
 
 template <typename T>
 inline constexpr bool is_signed_integer_v = false;
 
 template <>
-inline constexpr bool is_signed_integer_v<signed char> = true;
+inline constexpr bool is_signed_integer_v<i8> = true;
 
 template <>
-inline constexpr bool is_signed_integer_v<signed short> = true;
+inline constexpr bool is_signed_integer_v<i16> = true;
 
 template <>
-inline constexpr bool is_signed_integer_v<signed int> = true;
+inline constexpr bool is_signed_integer_v<i32> = true;
 
 template <>
-inline constexpr bool is_signed_integer_v<signed long> = true;
-
-template <>
-inline constexpr bool is_signed_integer_v<signed long long> = true;
+inline constexpr bool is_signed_integer_v<i64> = true;
 
 template <typename T>
 inline constexpr bool is_unsigned_integer_v = false;
 
 template <>
-inline constexpr bool is_unsigned_integer_v<unsigned char> = true;
+inline constexpr bool is_unsigned_integer_v<u8> = true;
 
 template <>
-inline constexpr bool is_unsigned_integer_v<unsigned short> = true;
+inline constexpr bool is_unsigned_integer_v<u16> = true;
 
 template <>
-inline constexpr bool is_unsigned_integer_v<unsigned int> = true;
+inline constexpr bool is_unsigned_integer_v<u32> = true;
 
 template <>
-inline constexpr bool is_unsigned_integer_v<unsigned long> = true;
-
-template <>
-inline constexpr bool is_unsigned_integer_v<unsigned long long> = true;
+inline constexpr bool is_unsigned_integer_v<u64> = true;
 
 }  // namespace safely::detail

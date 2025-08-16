@@ -2,29 +2,15 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include <gtest/gtest.h>
+#include <safely/primitives.hpp>
 
 namespace safely::tests {
 
-using SignedIntegerTypes = testing::Types<std::int8_t,   //
-                                          std::int16_t,  //
-                                          std::int32_t,  //
-                                          std::int64_t>;
+using SignedIntegerTypes = testing::Types<i8, i16, i32, i64>;
 
-using UnsignedIntegerTypes = testing::Types<std::uint8_t,   //
-                                            std::uint16_t,  //
-                                            std::uint32_t,  //
-                                            std::uint64_t>;
+using UnsignedIntegerTypes = testing::Types<u8, u16, u32, u64>;
 
-using IntegerTypes = testing::Types<std::int8_t,    //
-                                    std::int16_t,   //
-                                    std::int32_t,   //
-                                    std::int64_t,   //
-                                    std::uint8_t,   //
-                                    std::uint16_t,  //
-                                    std::uint32_t,  //
-                                    std::uint64_t>;
+using IntegerTypes = testing::Types<i8, i16, i32, i64, u8, u16, u32, u64>;
 
 }  // namespace safely::tests
