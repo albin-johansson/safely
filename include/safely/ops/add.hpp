@@ -5,6 +5,7 @@
 #include <limits>
 #include <type_traits>
 
+#include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
 #include <safely/error.hpp>
 #include <safely/predef.hpp>
@@ -13,10 +14,6 @@
 #if SAFELY_HAS_STDCKDINT
   #include <stdbool.h>
   #include <stdckdint.h>
-#endif
-
-#if SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  #include <intrin.h>
 #endif
 
 namespace safely {
@@ -72,50 +69,6 @@ template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
   return error;
 }
 
-#if SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto msvc_add_overflow(const T lhs,
-                                               const T rhs,
-                                               T& sum) noexcept -> errc
-{
-  if constexpr (std::is_same_v<T, i8>) {
-    return _add_overflow_i8(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-  else if constexpr (std::is_same_v<T, i16>) {
-    return _add_overflow_i16(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-  else if constexpr (std::is_same_v<T, i32>) {
-    return _add_overflow_i32(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-  else /* if constexpr (std::is_same_v<T, i64>) */ {
-    static_assert(std::is_same_v<T, i64>);
-    return _add_overflow_i64(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-}
-
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto msvc_add_overflow(const T lhs,
-                                               const T rhs,
-                                               T& sum) noexcept -> errc
-{
-  if constexpr (std::is_same_v<T, u8>) {
-    return _addcarry_u8(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-  else if constexpr (std::is_same_v<T, u16>) {
-    return _addcarry_u16(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-  else if constexpr (std::is_same_v<T, u32>) {
-    return _addcarry_u32(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-  else /* if constexpr (std::is_same_v<T, u64>) */ {
-    static_assert(std::is_same_v<T, u64>);
-    return _addcarry_u64(0, lhs, rhs, &sum) ? errc::overflow : errc::ok;
-  }
-}
-
-#endif
-
 template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto generic_add_wrap(const T lhs, const T rhs) noexcept
     -> T
@@ -157,7 +110,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
   return __builtin_add_overflow(lhs, rhs, &sum) ? errc::overflow : errc::ok;
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  return detail::msvc_add_overflow(lhs, rhs, sum);
+  return detail::msvc_add_overflow(lhs, rhs, sum) ? errc::overflow : errc::ok;
 #else
   return detail::generic_add(lhs, rhs, sum);
 #endif

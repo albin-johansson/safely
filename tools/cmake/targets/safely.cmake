@@ -11,6 +11,7 @@ set_target_properties(safely
 
 target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_DIR}/include"
                FILES
+               "${PROJECT_SOURCE_DIR}/include/detail/msvc_overflow_intrinsics.hpp"
                "${PROJECT_SOURCE_DIR}/include/detail/traits.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/add.hpp"
                "${PROJECT_SOURCE_DIR}/include/error.hpp"
