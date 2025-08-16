@@ -41,6 +41,7 @@ jobs:
                    -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
                    -DCMAKE_CXX_STANDARD=${{matrix.CXX_STANDARD}} \
                    -DSAFELY_ENABLE_TESTS=ON \
+                   -DSAFELY_ENABLE_UBSAN=ON \
                    -DSAFELY_ENABLE_INTRINSICS=${{matrix.ENABLE_INTRINSICS}}
 
       - name: Build
@@ -85,6 +86,7 @@ jobs:
                    -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
                    -DCMAKE_CXX_STANDARD=${{matrix.CXX_STANDARD}} \
                    -DSAFELY_ENABLE_TESTS=ON \
+                   -DSAFELY_ENABLE_UBSAN=ON \
                    -DSAFELY_ENABLE_INTRINSICS=${{matrix.ENABLE_INTRINSICS}}
 
       - name: Build
@@ -122,6 +124,7 @@ jobs:
                    -DCMAKE_COMPILE_WARNING_AS_ERROR=ON `
                    -DCMAKE_CXX_STANDARD=${{matrix.CXX_STANDARD}} `
                    -DSAFELY_ENABLE_TESTS=ON `
+                   -DSAFELY_ENABLE_UBSAN=OFF `
                    -DSAFELY_ENABLE_INTRINSICS=${{matrix.ENABLE_INTRINSICS}}
 
       - name: Build

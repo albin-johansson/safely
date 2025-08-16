@@ -62,4 +62,20 @@ else ()
                          "-Wold-style-cast"
                          "-Wno-c++20-attribute-extensions"
                          )
+
+  if (SAFELY_ENABLE_UBSAN)
+    target_compile_options(safely_tests
+                           PRIVATE
+                           "-fsanitize=undefined,unsigned-integer-overflow"
+                           "-fno-sanitize-recover"
+                           "-fno-omit-frame-pointer"
+                           )
+
+    target_link_options(safely_tests
+                        PRIVATE
+                        "-fsanitize=undefined,unsigned-integer-overflow"
+                        "-fno-sanitize-recover"
+                        "-fno-omit-frame-pointer"
+                        )
+  endif ()
 endif ()
