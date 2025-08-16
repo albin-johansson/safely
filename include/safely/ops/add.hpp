@@ -142,4 +142,29 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 #endif
 }
 
+/// Performs addition of two integers, saturating on overflow.
+///
+/// \param[in] lhs The first term.
+/// \param[in] rhs The second term.
+///
+/// \return
+/// The (potentially saturated) sum of the terms.
+template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+[[nodiscard]] constexpr auto add_sat(const T lhs, const T rhs) noexcept -> T
+{
+  constexpr auto t_min = std::numeric_limits<T>::min();
+  constexpr auto t_max = std::numeric_limits<T>::max();
+
+  if (T sum {}; add(lhs, rhs, sum) == errc::ok) {
+    return sum;
+  }
+
+  if constexpr (detail::is_unsigned_integer_v<T>) {
+    return t_max;
+  }
+  else {
+    return lhs < 0 ? t_min : t_max;
+  }
+}
+
 }  // namespace safely

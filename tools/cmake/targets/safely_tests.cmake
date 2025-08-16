@@ -18,6 +18,7 @@ target_sources(safely_tests
                PRIVATE
                "${PROJECT_SOURCE_DIR}/tests/detail/traits.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/add.test.cpp"
+               "${PROJECT_SOURCE_DIR}/tests/ops/add_sat.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/safely_tests.main.cpp"
                )
 
