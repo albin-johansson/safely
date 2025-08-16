@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <cstdint>
+#include <safely/primitives.hpp>
 
 namespace safely {
 
 /// Provides common error codes.
-enum class errc : std::uint8_t
+enum class errc : u8
 {
   /// Success.
   ok,
