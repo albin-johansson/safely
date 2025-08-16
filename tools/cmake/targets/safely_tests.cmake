@@ -21,7 +21,9 @@ target_sources(safely_tests
                "${PROJECT_SOURCE_DIR}/tests/safely_tests.main.cpp"
                )
 
-target_compile_features(safely_tests PRIVATE "cxx_std_20")
+if (NOT DEFINED CMAKE_CXX_STANDARD)
+  target_compile_features(safely_tests PRIVATE "cxx_std_20")
+endif ()
 
 target_link_libraries(safely_tests
                       PRIVATE
