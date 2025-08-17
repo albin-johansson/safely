@@ -7,6 +7,7 @@
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
+#include <safely/detail/unchecked.hpp>
 #include <safely/predef.hpp>
 
 #if SAFELY_HAS_STDCKDINT
@@ -26,11 +27,11 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (rhs > T {0} && lhs < static_cast<T>(t_min + rhs)) SAFELY_ATTR_UNLIKELY {
+  if (rhs > 0 && lhs < add_unchecked(t_min, rhs)) SAFELY_ATTR_UNLIKELY {
     return true;
   }
 
-  if (rhs < T {0} && lhs > static_cast<T>(t_max + rhs)) SAFELY_ATTR_UNLIKELY {
+  if (rhs < 0 && lhs > add_unchecked(t_max, rhs)) SAFELY_ATTR_UNLIKELY {
     return true;
   }
 
@@ -43,11 +44,7 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
                                                         const T rhs) noexcept
     -> bool
 {
-  if (rhs > lhs) SAFELY_ATTR_UNLIKELY {
-    return true;
-  }
-
-  return false;
+  return rhs > lhs;
 }
 
 template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
@@ -58,7 +55,7 @@ template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
   const auto overflow = generic_sub_check_overflow(lhs, rhs);
 
   if (!overflow) SAFELY_ATTR_LIKELY {
-    diff = static_cast<T>(lhs - rhs);
+    diff = sub_unchecked(lhs, rhs);
   }
 
   return overflow;
@@ -68,21 +65,15 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
-  using UT = arithmetic_t<std::make_unsigned_t<T>>;
-
-  // This assumes that signed integers use two's complement.
-  const auto u_lhs = static_cast<UT>(lhs);
-  const auto u_rhs = static_cast<UT>(rhs);
-
-  // Note, this cast is implementation defined.
-  return static_cast<T>(u_lhs - u_rhs);
+  // Note, this static_cast is implementation defined.
+  return static_cast<T>(sub_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
 }
 
 template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
-  return static_cast<T>(to_arithmetic(lhs) - to_arithmetic(rhs));
+  return sub_unchecked(lhs, rhs);
 }
 
 }  // namespace detail
