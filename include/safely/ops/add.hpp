@@ -56,9 +56,9 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 
 // Perform a checked integer addition.
 template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto generic_add_overflow(const T lhs,
-                                                  const T rhs,
-                                                  T& sum) noexcept -> bool
+[[nodiscard]] constexpr auto generic_add(const T lhs,
+                                         const T rhs,
+                                         T& sum) noexcept -> bool
 {
   const auto overflow = generic_add_check_overflow(lhs, rhs);
 
@@ -102,9 +102,8 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 /// \return
 /// `true` if the addition would overflow; `false` otherwise.
 template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto add_overflow(const T lhs,
-                                          const T rhs,
-                                          T& sum) noexcept -> bool
+[[nodiscard]] constexpr auto add(const T lhs, const T rhs, T& sum) noexcept
+    -> bool
 {
 #if SAFELY_HAS_STDCKDINT
   return ckd_add(&sum, lhs, rhs);
@@ -113,7 +112,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
   return detail::msvc_add_overflow(lhs, rhs, sum);
 #else
-  return detail::generic_add_overflow(lhs, rhs, sum);
+  return detail::generic_add(lhs, rhs, sum);
 #endif
 }
 
@@ -155,7 +154,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (T sum {}; !add_overflow(lhs, rhs, sum)) {
+  if (T sum {}; !add(lhs, rhs, sum)) {
     return sum;
   }
 

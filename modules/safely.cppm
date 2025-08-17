@@ -12,7 +12,7 @@ export namespace safely {
 using safely::errc;
 
 // <safely/ops/add.hpp>
-using safely::add_overflow;
+using safely::add;
 using safely::add_wrap;
 using safely::add_sat;
 
