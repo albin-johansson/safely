@@ -100,7 +100,7 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 ///                 unspecified state if the addition would overflow.
 ///
 /// \return
-/// `true` if the addition would overflow; false otherwise.
+/// `true` if the addition would overflow; `false` otherwise.
 template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto add_overflow(const T lhs,
                                           const T rhs,

@@ -4,5 +4,6 @@
 
 #include <safely/error.hpp>
 #include <safely/ops/add.hpp>
+#include <safely/ops/sub.hpp>
 #include <safely/predef.hpp>
 #include <safely/primitives.hpp>
