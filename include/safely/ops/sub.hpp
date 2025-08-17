@@ -68,7 +68,9 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
-  using UT = std::make_unsigned_t<T>;
+  // This avoids implicit signed integer promotions
+  using UT = std::
+      conditional_t<sizeof(T) < sizeof(uint), uint, std::make_unsigned_t<T>>;
 
   // This assumes that signed integers use two's complement.
   const auto u_lhs = static_cast<UT>(lhs);
@@ -82,7 +84,10 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
-  return static_cast<T>(lhs - rhs);
+  // This avoids implicit signed integer promotions
+  using U = std::conditional_t<sizeof(T) < sizeof(uint), uint, T>;
+
+  return static_cast<T>(static_cast<U>(lhs) - static_cast<U>(rhs));
 }
 
 }  // namespace detail

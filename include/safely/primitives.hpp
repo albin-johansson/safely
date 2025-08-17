@@ -8,6 +8,8 @@
 
 namespace safely {
 
+using uint = unsigned int;
+
 using usize = std::size_t;
 using isize = std::ptrdiff_t;
 
