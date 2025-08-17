@@ -4,7 +4,6 @@
 
 #include <limits>
 #include <optional>
-#include <type_traits>
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
@@ -20,7 +19,7 @@ namespace safely {
 namespace detail {
 
 // See SEI CERT C Coding Standard INT32-C.
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_sub_check_overflow(const T lhs,
                                                         const T rhs) noexcept
     -> bool
@@ -40,7 +39,7 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
 }
 
 // See SEI CERT C Coding Standard INT30-C.
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_sub_check_overflow(const T lhs,
                                                         const T rhs) noexcept
     -> bool
@@ -48,7 +47,7 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
   return rhs > lhs;
 }
 
-template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
+template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_sub(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
@@ -59,7 +58,7 @@ template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
   return sub_unchecked(lhs, rhs);
 }
 
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
@@ -67,7 +66,7 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
   return static_cast<T>(sub_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
 }
 
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
@@ -78,12 +77,14 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 
 /// Performs checked integer subtraction.
 ///
+/// \tparam T An integer type.
+///
 /// \param[in] lhs The first term.
 /// \param[in] rhs The second term.
 ///
 /// \return
 /// The difference if successful; an empty optional otherwise.
-template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto sub(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
@@ -110,12 +111,14 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 
 /// Performs checked integer subtraction, wrapping on overflow.
 ///
+/// \tparam T An integer type.
+///
 /// \param[in] lhs The first term.
 /// \param[in] rhs The second term.
 ///
 /// \return
 /// The (potentially wrapped) difference.
-template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto sub_wrap(const T lhs, const T rhs) noexcept -> T
 {
   T diff {};
@@ -135,12 +138,14 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 
 /// Performs checked integer subtraction, saturating on overflow.
 ///
+/// \tparam T An integer type.
+///
 /// \param[in] lhs The first term.
 /// \param[in] rhs The second term.
 ///
 /// \return
 /// The (potentially saturated) difference.
-template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto sub_sat(const T lhs, const T rhs) noexcept -> T
 {
   constexpr auto t_min = std::numeric_limits<T>::min();
