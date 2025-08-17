@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include <safely/primitives.hpp>
 
 namespace safely::detail {
@@ -62,5 +64,21 @@ inline constexpr bool is_unsigned_integer_v<u32> = true;
 
 template <>
 inline constexpr bool is_unsigned_integer_v<u64> = true;
+
+// Used to obtain a suitable arithmetic type for T.
+// This is mainly used to avoid issues with implicit signed integer promotions
+// when dealing with small types such as char and short.
+template <typename T>
+using arithmetic_t =
+    std::conditional_t<std::is_signed_v<T>,
+                       std::conditional_t<sizeof(T) < sizeof(int), int, T>,
+                       std::conditional_t<sizeof(T) < sizeof(uint), uint, T>>;
+
+template <typename T>
+[[nodiscard]] constexpr auto to_arithmetic(const T value) noexcept
+    -> arithmetic_t<T>
+{
+  return static_cast<arithmetic_t<T>>(value);
+}
 
 }  // namespace safely::detail
