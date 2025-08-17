@@ -3,10 +3,10 @@
 #pragma once
 
 #include <limits>
-#include <type_traits>
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
+#include <safely/detail/unchecked.hpp>
 #include <safely/predef.hpp>
 
 #if SAFELY_HAS_STDCKDINT
@@ -18,7 +18,7 @@ namespace safely {
 namespace detail {
 
 // See SEI CERT C Coding Standard INT32-C.
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_mul_check_overflow(const T lhs,
                                                         const T rhs) noexcept
     -> bool
@@ -30,28 +30,29 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
   const auto is_rhs_positive = rhs > 0;
 
   if (is_lhs_positive) {
-    return is_rhs_positive ? (lhs > t_max / rhs) : (rhs < t_min / lhs);
+    return is_rhs_positive ? lhs > div_unchecked(t_max, rhs)
+                           : rhs < div_unchecked(t_min, lhs);
   }
 
   if (is_rhs_positive) {
-    return lhs < t_min / rhs;
+    return lhs < div_unchecked(t_min, rhs);
   }
 
-  return lhs != 0 && (rhs < t_max / lhs);
+  return lhs != 0 && rhs < div_unchecked(t_max, lhs);
 }
 
 // See SEI CERT C Coding Standard INT30-C.
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_mul_check_overflow(const T lhs,
                                                         const T rhs) noexcept
     -> bool
 {
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  return rhs != 0 && lhs > t_max / rhs;
+  return rhs != 0 && lhs > div_unchecked(t_max, rhs);
 }
 
-template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
+template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_mul(const T lhs,
                                          const T rhs,
                                          T& product) noexcept -> bool
@@ -59,36 +60,32 @@ template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
   const auto overflow = generic_mul_check_overflow(lhs, rhs);
 
   if (!overflow) SAFELY_ATTR_LIKELY {
-    product = static_cast<T>(lhs * rhs);
+    product = mul_unchecked(lhs, rhs);
   }
 
   return overflow;
 }
 
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_mul_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
-  using UT = arithmetic_t<std::make_unsigned_t<T>>;
-
-  // This assumes that signed integers use two's complement.
-  const auto u_lhs = static_cast<UT>(lhs);
-  const auto u_rhs = static_cast<UT>(rhs);
-
-  // Note, this cast is implementation defined.
-  return static_cast<T>(u_lhs * u_rhs);
+  // Note, this static_cast is implementation defined.
+  return static_cast<T>(mul_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
 }
 
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_mul_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
-  return static_cast<T>(to_arithmetic(lhs) * to_arithmetic(rhs));
+  return mul_unchecked(lhs, rhs);
 }
 
 }  // namespace detail
 
 /// Multiplies two integers.
+///
+/// \tparam T An integer type.
 ///
 /// \param[in]  lhs     The first factor.
 /// \param[in]  rhs     The second factor.
@@ -98,7 +95,7 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 ///
 /// \return
 /// `true` if the multiplication would overflow; `false` otherwise.
-template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul(const T lhs, const T rhs, T& product) noexcept
     -> bool
 {
@@ -115,12 +112,14 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 
 /// Multiplies two integers, wrapping on overflow.
 ///
+/// \tparam T An integer type.
+///
 /// \param[in] lhs The first factor.
 /// \param[in] rhs The second factor.
 ///
 /// \return
 /// The (potentially wrapped) product.
-template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul_wrap(const T lhs, const T rhs) noexcept -> T
 {
   T product {};
@@ -140,12 +139,14 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
 
 /// Multiplies two integers, saturating on overflow.
 ///
+/// \tparam T An integer type.
+///
 /// \param[in] lhs The first factor.
 /// \param[in] rhs The second factor.
 ///
 /// \return
 /// The (potentially saturated) product.
-template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
+template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul_sat(const T lhs, const T rhs) noexcept -> T
 {
   constexpr auto t_min = std::numeric_limits<T>::min();
@@ -159,7 +160,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
     return t_max;
   }
   else {
-    return (lhs < 0) != (rhs < 0) ? t_min : t_max;
+    return lhs < 0 != rhs < 0 ? t_min : t_max;
   }
 }
 
