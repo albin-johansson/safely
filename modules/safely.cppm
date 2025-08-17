@@ -16,6 +16,9 @@ using safely::add;
 using safely::add_wrap;
 using safely::add_sat;
 
+// <safely/ops/div.hpp>
+using safely::div;
+
 // <safely/ops/mul.hpp>
 using safely::mul;
 using safely::mul_wrap;

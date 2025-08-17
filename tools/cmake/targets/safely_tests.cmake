@@ -20,6 +20,7 @@ target_sources(safely_tests
                "${PROJECT_SOURCE_DIR}/tests/ops/add.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/add_sat.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/add_wrap.test.cpp"
+               "${PROJECT_SOURCE_DIR}/tests/ops/div.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/mul.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/mul_sat.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/mul_wrap.test.cpp"
