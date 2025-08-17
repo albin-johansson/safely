@@ -17,14 +17,14 @@ class SubTest : public testing::Test
   static void test_ok(const T lhs, const T rhs, const T expected_diff)
   {
     T diff {};
-    ASSERT_FALSE(sub(lhs, rhs, diff));
+    ASSERT_FALSE(sub(lhs, rhs, diff)) << +lhs << " - " << +rhs;
     EXPECT_EQ(diff, expected_diff);
   }
 
   static void test_err(const T lhs, const T rhs)
   {
     T diff {};
-    EXPECT_TRUE(sub(lhs, rhs, diff));
+    EXPECT_TRUE(sub(lhs, rhs, diff)) << +lhs << " - " << +rhs;
   }
 };
 

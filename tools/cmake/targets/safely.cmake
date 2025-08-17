@@ -14,6 +14,7 @@ target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_D
                "${PROJECT_SOURCE_DIR}/include/detail/msvc_overflow_intrinsics.hpp"
                "${PROJECT_SOURCE_DIR}/include/detail/traits.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/add.hpp"
+               "${PROJECT_SOURCE_DIR}/include/ops/mul.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/sub.hpp"
                "${PROJECT_SOURCE_DIR}/include/error.hpp"
                "${PROJECT_SOURCE_DIR}/include/predef.hpp"

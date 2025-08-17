@@ -17,14 +17,14 @@ class AddOverflowTest : public testing::Test
   static void test_ok(const T lhs, const T rhs, const T expected_sum)
   {
     T sum {};
-    ASSERT_FALSE(add_overflow(lhs, rhs, sum));
+    ASSERT_FALSE(add_overflow(lhs, rhs, sum)) << +lhs << " + " << +rhs;
     EXPECT_EQ(sum, expected_sum);
   }
 
   static void test_err(const T lhs, const T rhs)
   {
     T sum {};
-    EXPECT_TRUE(add_overflow(lhs, rhs, sum));
+    EXPECT_TRUE(add_overflow(lhs, rhs, sum)) << +lhs << " + " << +rhs;
   }
 };
 

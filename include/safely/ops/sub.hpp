@@ -74,7 +74,7 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
   const auto u_lhs = static_cast<UT>(lhs);
   const auto u_rhs = static_cast<UT>(rhs);
 
-  // Note, this is implementation defined.
+  // Note, this cast is implementation defined.
   return static_cast<T>(u_lhs - u_rhs);
 }
 
