@@ -65,30 +65,40 @@ inline constexpr bool is_unsigned_integer_v<u32> = true;
 template <>
 inline constexpr bool is_unsigned_integer_v<u64> = true;
 
+template <typename T>
+using integer_concept_t = std::enable_if_t<is_integer_v<T>, int>;
+
+template <typename T>
+using signed_integer_concept_t = std::enable_if_t<is_signed_integer_v<T>, int>;
+
+template <typename T>
+using unsigned_integer_concept_t =
+    std::enable_if_t<is_unsigned_integer_v<T>, int>;
+
 // Used to obtain a suitable arithmetic type for T.
 // This is mainly used to avoid issues with implicit signed integer promotions
 // when dealing with small types such as char and short.
-template <typename T>
+template <typename T, integer_concept_t<T> = 0>
 using arithmetic_t =
     std::conditional_t<std::is_signed_v<T>,
                        std::conditional_t<sizeof(T) < sizeof(int), int, T>,
                        std::conditional_t<sizeof(T) < sizeof(uint), uint, T>>;
 
-template <typename T>
+template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto to_arithmetic(const T value) noexcept
     -> arithmetic_t<T>
 {
   return static_cast<arithmetic_t<T>>(value);
 }
 
-template <typename T>
+template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto to_unsigned(const T value) noexcept
     -> std::make_unsigned_t<T>
 {
   return static_cast<std::make_unsigned_t<T>>(value);
 }
 
-template <typename T>
+template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto to_signed(const T value) noexcept
     -> std::make_signed_t<T>
 {
