@@ -40,16 +40,16 @@ TYPED_TEST(SubWrapTest, SubWrap)
   // MAX - 0 = MAX
   EXPECT_EQ(sub_wrap(t_max, T {0}), t_max);
 
-  // MIN - 1 = MAX
+  // MIN - 1 = MAX <wrapped>
   EXPECT_EQ(sub_wrap(t_min, T {1}), t_max);
 
-  // MIN - 2 = MAX - 1
+  // MIN - 2 = MAX - 1 <wrapped>
   EXPECT_EQ(sub_wrap(t_min, T {2}), static_cast<T>(t_max - T {1}));
 
   // MAX - MAX = 0
   EXPECT_EQ(sub_wrap(t_max, t_max), T {0});
 
-  // MIN - MAX = 1
+  // MIN - MAX = 1 <wrapped>
   EXPECT_EQ(sub_wrap(t_min, t_max), T {1});
 }
 
@@ -74,10 +74,10 @@ TYPED_TEST(SubWrapSignedTest, SubWrap)
   // MIN - MIN = 0
   EXPECT_EQ(sub_wrap(t_min, t_min), T {0});
 
-  // MAX - (-1) = MIN
+  // MAX - (-1) = MIN <wrapped>
   EXPECT_EQ(sub_wrap(t_max, T {-1}), t_min);
 
-  // MAX - (-2) = MIN + 1
+  // MAX - (-2) = MIN + 1 <wrapped>
   EXPECT_EQ(sub_wrap(t_max, T {-2}), static_cast<T>(t_min + T {1}));
 }
 

@@ -40,13 +40,13 @@ TYPED_TEST(SubSatTest, SubSat)
   // MAX - 0 = MAX
   EXPECT_EQ(sub_sat(t_max, T {0}), t_max);
 
-  // MIN - 1 = MIN
+  // MIN - 1 = MIN <saturated>
   EXPECT_EQ(sub_sat(t_min, T {1}), t_min);
 
-  // MIN - 2 = MIN
+  // MIN - 2 = MIN <saturated>
   EXPECT_EQ(sub_sat(t_min, T {2}), t_min);
 
-  // MIN - MAX = MIN
+  // MIN - MAX = MIN <saturated>
   EXPECT_EQ(sub_sat(t_min, t_max), t_min);
 
   // MAX - MAX = 0
@@ -77,10 +77,10 @@ TYPED_TEST(SubSatSignedTest, SubSat)
   // MIN - MIN = 0
   EXPECT_EQ(sub_sat(t_min, t_min), T {0});
 
-  // MAX - (-1) = MAX
+  // MAX - (-1) = MAX <saturated>
   EXPECT_EQ(sub_sat(t_max, T {-1}), t_max);
 
-  // MAX - (-2) = MAX
+  // MAX - (-2) = MAX <saturated>
   EXPECT_EQ(sub_sat(t_max, T {-2}), t_max);
 }
 

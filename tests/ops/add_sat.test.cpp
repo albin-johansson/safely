@@ -40,16 +40,16 @@ TYPED_TEST(AddSatTest, AddSat)
   // MIN + 0 = MIN
   EXPECT_EQ(add_sat(t_min, T {0}), t_min);
 
-  // MAX + 1 = MAX
+  // MAX + 1 = MAX <saturated>
   EXPECT_EQ(add_sat(t_max, T {1}), t_max);
 
-  // MAX + 2 = MAX
+  // MAX + 2 = MAX <saturated>
   EXPECT_EQ(add_sat(t_max, T {2}), t_max);
 
-  // 1 + MAX = MAX
+  // 1 + MAX = MAX <saturated>
   EXPECT_EQ(add_sat(T {1}, t_max), t_max);
 
-  // MAX + MAX = MAX
+  // MAX + MAX = MAX <saturated>
   EXPECT_EQ(add_sat(t_max, t_max), t_max);
 }
 
@@ -77,16 +77,16 @@ TYPED_TEST(AddSatSignedTest, AddSat)
   // MIN + MAX = -1
   EXPECT_EQ(add_sat(t_min, t_max), T {-1});
 
-  // MIN + -1 = MIN
+  // MIN + -1 = MIN <saturated>
   EXPECT_EQ(add_sat(t_min, T {-1}), t_min);
 
-  // MIN + -2 = MIN
+  // MIN + -2 = MIN <saturated>
   EXPECT_EQ(add_sat(t_min, T {-2}), t_min);
 
-  // -1 + MIN = MIN
+  // -1 + MIN = MIN <saturated>
   EXPECT_EQ(add_sat(T {-1}, t_min), t_min);
 
-  // MIN + MIN = MIN
+  // MIN + MIN = MIN <saturated>
   EXPECT_EQ(add_sat(t_min, t_min), t_min);
 }
 
