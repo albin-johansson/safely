@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <optional>
 #include <type_traits>
 
 #include <safely/detail/traits.hpp>
@@ -78,22 +79,35 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
 
 template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 [[nodiscard]] constexpr auto msvc_sub_overflow(const T lhs,
-                                               const T rhs,
-                                               T& diff) noexcept -> bool
+                                               const T rhs) noexcept
+    -> std::optional<T>
 {
+  std::optional<T> result {};
+
+  T diff {};
   if constexpr (std::is_same_v<T, u8>) {
-    return _subborrow_u8(0, lhs, rhs, &diff);
+    if (!_subborrow_u8(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
+      result = diff;
+    }
   }
   else if constexpr (std::is_same_v<T, u16>) {
-    return _subborrow_u16(0, lhs, rhs, &diff);
+    if (!_subborrow_u16(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
+      result = diff;
+    }
   }
   else if constexpr (std::is_same_v<T, u32>) {
-    return _subborrow_u32(0, lhs, rhs, &diff);
+    if (!_subborrow_u32(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
+      result = diff;
+    }
   }
   else /* if constexpr (std::is_same_v<T, u64>) */ {
     static_assert(std::is_same_v<T, u64>);
-    return _subborrow_u64(0, lhs, rhs, &diff);
+    if (!_subborrow_u64(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
+      result = diff;
+    }
   }
+
+  return result;
 }
 
 template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>

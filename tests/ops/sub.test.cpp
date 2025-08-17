@@ -16,15 +16,15 @@ class SubTest : public testing::Test
  public:
   static void test_ok(const T lhs, const T rhs, const T expected_diff)
   {
-    T diff {};
-    ASSERT_FALSE(sub(lhs, rhs, diff)) << +lhs << " - " << +rhs;
-    EXPECT_EQ(diff, expected_diff);
+    const auto diff = sub(lhs, rhs);
+    ASSERT_TRUE(diff.has_value()) << +lhs << " - " << +rhs;
+    EXPECT_EQ(*diff, expected_diff);
   }
 
   static void test_err(const T lhs, const T rhs)
   {
-    T diff {};
-    EXPECT_TRUE(sub(lhs, rhs, diff)) << +lhs << " - " << +rhs;
+    const auto diff = sub(lhs, rhs);
+    EXPECT_EQ(diff, std::nullopt) << +lhs << " - " << +rhs;
   }
 };
 

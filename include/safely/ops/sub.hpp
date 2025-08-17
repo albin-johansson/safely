@@ -3,6 +3,7 @@
 #pragma once
 
 #include <limits>
+#include <optional>
 #include <type_traits>
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
@@ -48,17 +49,14 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 }
 
 template <typename T, std::enable_if_t<is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto generic_sub(const T lhs,
-                                         const T rhs,
-                                         T& diff) noexcept -> bool
+[[nodiscard]] constexpr auto generic_sub(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
-  const auto overflow = generic_sub_check_overflow(lhs, rhs);
-
-  if (!overflow) SAFELY_ATTR_LIKELY {
-    diff = sub_unchecked(lhs, rhs);
+  if (generic_sub_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+    return std::nullopt;
   }
 
-  return overflow;
+  return sub_unchecked(lhs, rhs);
 }
 
 template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
@@ -78,31 +76,39 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
 
 }  // namespace detail
 
-/// Performs checked subtraction of two integers.
+/// Performs checked integer subtraction.
 ///
-/// \param[in]  lhs  The first term.
-/// \param[in]  rhs  The second term.
-/// \param[out] diff The destination of the result. This variable is left in an
-///                  unspecified state if the subtraction would overflow.
+/// \param[in] lhs The first term.
+/// \param[in] rhs The second term.
 ///
 /// \return
-/// `true` if the subtraction would overflow; `false` otherwise.
+/// The difference if successful; an empty optional otherwise.
 template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
-[[nodiscard]] constexpr auto sub(const T lhs, const T rhs, T& diff) noexcept
-    -> bool
+[[nodiscard]] constexpr auto sub(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
+  std::optional<T> result {};
+
 #if SAFELY_HAS_STDCKDINT
-  return ckd_sub(&diff, lhs, rhs);
+  T diff {};
+  if (!ckd_sub(&diff, lhs, rhs)) SAFELY_ATTR_LIKELY {
+    result = diff;
+  }
 #elif SAFELY_HAS_BUILTIN_SUB_OVERFLOW
-  return __builtin_sub_overflow(lhs, rhs, &diff);
+  T diff {};
+  if (!__builtin_sub_overflow(lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
+    result = diff;
+  }
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  return detail::msvc_sub_overflow(lhs, rhs, diff);
+  result = detail::msvc_sub_overflow(lhs, rhs);
 #else
-  return detail::generic_sub(lhs, rhs, diff);
+  result = detail::generic_sub(lhs, rhs);
 #endif
+
+  return result;
 }
 
-/// Performs subtraction of two integers, wrapping on overflow.
+/// Performs checked integer subtraction, wrapping on overflow.
 ///
 /// \param[in] lhs The first term.
 /// \param[in] rhs The second term.
@@ -127,7 +133,7 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
   return diff;
 }
 
-/// Performs subtraction of two integers, saturating on overflow.
+/// Performs checked integer subtraction, saturating on overflow.
 ///
 /// \param[in] lhs The first term.
 /// \param[in] rhs The second term.
@@ -140,8 +146,8 @@ template <typename T, std::enable_if_t<detail::is_integer_v<T>, int> = 0>
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (T diff {}; !sub(lhs, rhs, diff)) {
-    return diff;
+  if (const auto diff = sub(lhs, rhs)) {
+    return *diff;
   }
 
   if constexpr (detail::is_unsigned_integer_v<T>) {
