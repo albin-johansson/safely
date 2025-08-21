@@ -101,7 +101,10 @@ template <typename T, detail::integer_concept_t<T> = 0>
     result = diff;
   }
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  result = detail::msvc_sub_overflow(lhs, rhs);
+  T diff {};
+  if (!detail::msvc_sub_overflow(lhs, rhs, diff)) SAFELY_ATTR_LIKELY {
+    result = diff;
+  }
 #else
   result = detail::generic_sub(lhs, rhs);
 #endif

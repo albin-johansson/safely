@@ -17,7 +17,7 @@ namespace safely::detail {
 
 #if SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
 
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto msvc_add_overflow(const T lhs,
                                                const T rhs,
                                                T& sum) noexcept -> bool
@@ -37,7 +37,7 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
   }
 }
 
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto msvc_add_overflow(const T lhs,
                                                const T rhs,
                                                T& sum) noexcept -> bool
@@ -57,7 +57,7 @@ template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
   }
 }
 
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto msvc_sub_overflow(const T lhs,
                                                const T rhs,
                                                T& diff) noexcept -> bool
@@ -77,60 +77,47 @@ template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
   }
 }
 
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto msvc_sub_overflow(const T lhs,
-                                               const T rhs) noexcept
-    -> std::optional<T>
+                                               const T rhs,
+                                               T& diff) noexcept -> bool
 {
-  std::optional<T> result {};
-
-  T diff {};
   if constexpr (std::is_same_v<T, u8>) {
-    if (!_subborrow_u8(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
-      result = diff;
-    }
+    return _subborrow_u8(0, lhs, rhs, &diff);
   }
   else if constexpr (std::is_same_v<T, u16>) {
-    if (!_subborrow_u16(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
-      result = diff;
-    }
+    return _subborrow_u16(0, lhs, rhs, &diff);
   }
   else if constexpr (std::is_same_v<T, u32>) {
-    if (!_subborrow_u32(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
-      result = diff;
-    }
+    return _subborrow_u32(0, lhs, rhs, &diff);
   }
   else /* if constexpr (std::is_same_v<T, u64>) */ {
     static_assert(std::is_same_v<T, u64>);
-    if (!_subborrow_u64(0, lhs, rhs, &diff)) SAFELY_ATTR_LIKELY {
-      result = diff;
-    }
+    return _subborrow_u64(0, lhs, rhs, &diff);
   }
-
-  return result;
 }
 
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto msvc_mul_overflow(const T lhs,
                                                const T rhs,
                                                T& product) noexcept -> bool
 {
   if constexpr (std::is_same_v<T, i8>) {
-    return _mul_full_overflow_i8(0, lhs, rhs, &product);
+    return _mul_overflow_i8(lhs, rhs, &product);
   }
   else if constexpr (std::is_same_v<T, i16>) {
-    return _mul_full_overflow_i16(0, lhs, rhs, &product);
+    return _mul_overflow_i16(lhs, rhs, &product);
   }
   else if constexpr (std::is_same_v<T, i32>) {
-    return _mul_full_overflow_i32(0, lhs, rhs, &product);
+    return _mul_overflow_i32(lhs, rhs, &product);
   }
   else /* if constexpr (std::is_same_v<T, i64>) */ {
     static_assert(std::is_same_v<T, i64>);
-    return _mul_full_overflow_i64(0, lhs, rhs, &product);
+    return _mul_overflow_i64(lhs, rhs, &product);
   }
 }
 
-template <typename T, std::enable_if_t<is_unsigned_integer_v<T>, int> = 0>
+template <typename T, unsigned_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto msvc_mul_overflow(const T lhs,
                                                const T rhs,
                                                T& product) noexcept -> bool

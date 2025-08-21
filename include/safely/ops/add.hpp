@@ -3,7 +3,7 @@
 #pragma once
 
 #include <limits>
-#include <type_traits>
+#include <optional>
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
@@ -49,20 +49,17 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_add(const T lhs,
-                                         const T rhs,
-                                         T& sum) noexcept -> bool
+[[nodiscard]] constexpr auto generic_add(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
-  const auto overflow = generic_add_check_overflow(lhs, rhs);
-
-  if (!overflow) SAFELY_ATTR_LIKELY {
-    sum = add_unchecked(lhs, rhs);
+  if (generic_add_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+    return std::nullopt;
   }
 
-  return overflow;
+  return add_unchecked(lhs, rhs);
 }
 
-template <typename T, std::enable_if_t<is_signed_integer_v<T>, int> = 0>
+template <typename T, signed_integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto generic_add_wrap(const T lhs, const T rhs) noexcept
     -> T
 {
@@ -79,30 +76,41 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 
 }  // namespace detail
 
-/// Performs checked addition of two integers.
+/// Performs checked integer addition.
 ///
 /// \tparam T An integer type.
 ///
-/// \param[in]  lhs The first term.
-/// \param[in]  rhs The second term.
-/// \param[out] sum The destination of the result. This variable is left in an
-///                 unspecified state if the addition would overflow.
+/// \param[in] lhs The first term.
+/// \param[in] rhs The second term.
 ///
 /// \return
-/// `true` if the addition would overflow; `false` otherwise.
+/// The sum if successful; an empty optional otherwise.
 template <typename T, detail::integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto add(const T lhs, const T rhs, T& sum) noexcept
-    -> bool
+[[nodiscard]] constexpr auto add(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
+  std::optional<T> result {};
+
 #if SAFELY_HAS_STDCKDINT
-  return ckd_add(&sum, lhs, rhs);
+  T sum {};
+  if (!ckd_add(&sum, lhs, rhs)) {
+    result = sum;
+  }
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
-  return __builtin_add_overflow(lhs, rhs, &sum);
+  T sum {};
+  if (!__builtin_add_overflow(lhs, rhs, &sum)) {
+    result = sum;
+  }
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  return detail::msvc_add_overflow(lhs, rhs, sum);
+  T sum {};
+  if (!detail::msvc_add_overflow(lhs, rhs, sum)) {
+    result = sum;
+  }
 #else
-  return detail::generic_add(lhs, rhs, sum);
+  result = detail::generic_add(lhs, rhs);
 #endif
+
+  return result;
 }
 
 /// Performs addition of two integers, wrapping on overflow.
@@ -147,8 +155,8 @@ template <typename T, detail::integer_concept_t<T> = 0>
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (T sum {}; !add(lhs, rhs, sum)) {
-    return sum;
+  if (const auto sum = add(lhs, rhs)) {
+    return *sum;
   }
 
   if constexpr (detail::is_unsigned_integer_v<T>) {

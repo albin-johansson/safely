@@ -1,6 +1,7 @@
 // Copyright (C) 2025 Albin Johansson
 
 #include <limits>
+#include <optional>
 
 #include <gtest/gtest.h>
 #include <safely/ops/add.hpp>
@@ -16,15 +17,15 @@ class AddOverflowTest : public testing::Test
  public:
   static void test_ok(const T lhs, const T rhs, const T expected_sum)
   {
-    T sum {};
-    ASSERT_FALSE(add(lhs, rhs, sum)) << +lhs << " + " << +rhs;
-    EXPECT_EQ(sum, expected_sum);
+    const auto sum = add(lhs, rhs);
+    ASSERT_NE(sum, std::nullopt) << +lhs << " + " << +rhs;
+    EXPECT_EQ(*sum, expected_sum);
   }
 
   static void test_err(const T lhs, const T rhs)
   {
-    T sum {};
-    EXPECT_TRUE(add(lhs, rhs, sum)) << +lhs << " + " << +rhs;
+    const auto sum = add(lhs, rhs);
+    EXPECT_EQ(sum, std::nullopt) << +lhs << " + " << +rhs;
   }
 };
 
