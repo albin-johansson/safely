@@ -1,6 +1,7 @@
 // Copyright (C) 2025 Albin Johansson
 
 #include <limits>
+#include <optional>
 
 #include <gtest/gtest.h>
 #include <safely/ops/mul.hpp>
@@ -16,15 +17,15 @@ class MulTest : public testing::Test
  public:
   static void test_ok(const T lhs, const T rhs, const T expected_product)
   {
-    T product {};
-    EXPECT_FALSE(mul(lhs, rhs, product)) << +lhs << " * " << +rhs;
-    EXPECT_EQ(product, expected_product);
+    const auto product = mul(lhs, rhs);
+    ASSERT_NE(product, std::nullopt) << +lhs << " * " << +rhs;
+    EXPECT_EQ(*product, expected_product);
   }
 
   static void test_err(const T lhs, const T rhs)
   {
-    T product {};
-    EXPECT_TRUE(mul(lhs, rhs, product)) << +lhs << " * " << +rhs;
+    const auto product = mul(lhs, rhs);
+    EXPECT_EQ(product, std::nullopt) << +lhs << " * " << +rhs;
   }
 };
 

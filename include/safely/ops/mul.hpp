@@ -3,6 +3,7 @@
 #pragma once
 
 #include <limits>
+#include <optional>
 
 #include <safely/detail/msvc_overflow_intrinsics.hpp>
 #include <safely/detail/traits.hpp>
@@ -53,17 +54,14 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_mul(const T lhs,
-                                         const T rhs,
-                                         T& product) noexcept -> bool
+[[nodiscard]] constexpr auto generic_mul(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
-  const auto overflow = generic_mul_check_overflow(lhs, rhs);
-
-  if (!overflow) SAFELY_ATTR_LIKELY {
-    product = mul_unchecked(lhs, rhs);
+  if (generic_mul_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+    return std::nullopt;
   }
 
-  return overflow;
+  return mul_unchecked(lhs, rhs);
 }
 
 template <typename T, signed_integer_concept_t<T> = 0>
@@ -83,34 +81,44 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 
 }  // namespace detail
 
-/// Multiplies two integers.
+/// Performs checked integer multiplication.
 ///
 /// \tparam T An integer type.
 ///
-/// \param[in]  lhs     The first factor.
-/// \param[in]  rhs     The second factor.
-/// \param[out] product The destination of the result. This variable is left in
-///                     an unspecified state if the multiplication would
-///                     overflow.
+/// \param[in] lhs The first factor.
+/// \param[in] rhs The second factor.
 ///
 /// \return
-/// `true` if the multiplication would overflow; `false` otherwise.
+/// The product if successful; an empty optional otherwise.
 template <typename T, detail::integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto mul(const T lhs, const T rhs, T& product) noexcept
-    -> bool
+[[nodiscard]] constexpr auto mul(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
+  std::optional<T> result {};
+
 #if SAFELY_HAS_STDCKDINT
-  return ckd_mul(&product, lhs, rhs);
+  T product {};
+  if (!ckd_mul(&product, lhs, rhs)) {
+    result = product;
+  }
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
-  return __builtin_mul_overflow(lhs, rhs, &product);
+  T product {};
+  if (!__builtin_mul_overflow(lhs, rhs, &product)) {
+    result = product;
+  }
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  return detail::msvc_mul_overflow(lhs, rhs, product);
+  T product {};
+  if (!detail::msvc_mul_overflow(lhs, rhs, product)) {
+    result = product;
+  }
 #else
-  return detail::generic_mul(lhs, rhs, product);
+  result = detail::generic_mul(lhs, rhs);
 #endif
+
+  return result;
 }
 
-/// Multiplies two integers, wrapping on overflow.
+/// Performs checked integer multiplication, wrapping on overflow.
 ///
 /// \tparam T An integer type.
 ///
@@ -137,7 +145,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
   return product;
 }
 
-/// Multiplies two integers, saturating on overflow.
+/// Performs checked integer multiplication, saturating on overflow.
 ///
 /// \tparam T An integer type.
 ///
@@ -152,8 +160,8 @@ template <typename T, detail::integer_concept_t<T> = 0>
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (T product {}; !mul(lhs, rhs, product)) {
-    return product;
+  if (const auto product = mul(lhs, rhs)) {
+    return *product;
   }
 
   if constexpr (detail::is_unsigned_integer_v<T>) {
