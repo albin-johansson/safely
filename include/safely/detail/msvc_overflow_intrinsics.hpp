@@ -103,17 +103,28 @@ template <typename T, signed_integer_concept_t<T> = 0>
                                                T& product) noexcept -> bool
 {
   if constexpr (std::is_same_v<T, i8>) {
-    return _mul_overflow_i8(lhs, rhs, &product);
+    i16 i16_product {};
+    const auto overflow = _mul_full_overflow_i8(lhs, rhs, &i16_product);
+
+    if (!overflow) SAFELY_ATTR_LIKELY {
+      product = static_cast<i8>(i16_product);
+    }
+
+    return overflow;
   }
   else if constexpr (std::is_same_v<T, i16>) {
-    return _mul_overflow_i16(lhs, rhs, &product);
+    i16 product_hi {};
+    return _mul_full_overflow_i16(lhs, rhs, &product, &product_hi);
   }
   else if constexpr (std::is_same_v<T, i32>) {
-    return _mul_overflow_i32(lhs, rhs, &product);
+    i32 product_hi {};
+    return _mul_full_overflow_i32(lhs, rhs, &product, &product_hi);
   }
   else /* if constexpr (std::is_same_v<T, i64>) */ {
     static_assert(std::is_same_v<T, i64>);
-    return _mul_overflow_i64(lhs, rhs, &product);
+
+    i64 product_hi {};
+    return _mul_full_overflow_i64(lhs, rhs, &product, &product_hi);
   }
 }
 
@@ -123,17 +134,28 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
                                                T& product) noexcept -> bool
 {
   if constexpr (std::is_same_v<T, u8>) {
-    return _mul_full_overflow_u8(0, lhs, rhs, &product);
+    u16 u16_product {};
+    const auto overflow = _mul_full_overflow_u8(lhs, rhs, &u16_product);
+
+    if (!overflow) SAFELY_ATTR_LIKELY {
+      product = static_cast<u8>(u16_product);
+    }
+
+    return overflow;
   }
   else if constexpr (std::is_same_v<T, u16>) {
-    return _mul_full_overflow_u16(0, lhs, rhs, &product);
+    u16 product_hi {};
+    return _mul_full_overflow_u16(lhs, rhs, &product, &product_hi);
   }
   else if constexpr (std::is_same_v<T, u32>) {
-    return _mul_full_overflow_u32(0, lhs, rhs, &product);
+    u32 product_hi {};
+    return _mul_full_overflow_u32(lhs, rhs, &product, &product_hi);
   }
   else /* if constexpr (std::is_same_v<T, u64>) */ {
     static_assert(std::is_same_v<T, u64>);
-    return _mul_full_overflow_u64(0, lhs, rhs, &product);
+
+    u64 product_hi {};
+    return _mul_full_overflow_u64(lhs, rhs, &product, &product_hi);
   }
 }
 

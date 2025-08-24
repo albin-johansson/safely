@@ -136,8 +136,6 @@ template <typename T, detail::integer_concept_t<T> = 0>
   (void) ckd_mul(&product, lhs, rhs);
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
   (void) __builtin_mul_overflow(lhs, rhs, &product);
-#elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
-  (void) detail::msvc_mul_overflow(lhs, rhs, product);
 #else
   product = detail::generic_mul_wrap(lhs, rhs);
 #endif
