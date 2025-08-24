@@ -166,7 +166,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
     return t_max;
   }
   else {
-    return lhs < 0 != rhs < 0 ? t_min : t_max;
+    return (lhs < 0) != (rhs < 0) ? t_min : t_max;
   }
 }
 
