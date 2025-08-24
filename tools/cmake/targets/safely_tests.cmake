@@ -24,6 +24,7 @@ target_sources(safely_tests
                "${PROJECT_SOURCE_DIR}/tests/ops/mul.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/mul_sat.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/mul_wrap.test.cpp"
+               "${PROJECT_SOURCE_DIR}/tests/ops/rem.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/sub.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/sub_sat.test.cpp"
                "${PROJECT_SOURCE_DIR}/tests/ops/sub_wrap.test.cpp"

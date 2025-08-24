@@ -6,6 +6,7 @@
 #include <safely/ops/add.hpp>
 #include <safely/ops/div.hpp>
 #include <safely/ops/mul.hpp>
+#include <safely/ops/rem.hpp>
 #include <safely/ops/sub.hpp>
 #include <safely/predef.hpp>
 #include <safely/primitives.hpp>
