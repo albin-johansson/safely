@@ -63,7 +63,6 @@ TYPED_TEST(RemSignedTest, Rem)
 {
   using T = TypeParam;
   constexpr auto t_min = std::numeric_limits<T>::min();
-  constexpr auto t_max = std::numeric_limits<T>::max();
 
   // MIN % -1 => OVERFLOW
   EXPECT_EQ(rem(t_min, T {-1}), std::nullopt);
