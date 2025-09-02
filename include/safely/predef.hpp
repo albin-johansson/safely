@@ -64,3 +64,22 @@
   #endif
 
 #endif
+
+namespace safely {
+
+/// Indicates whether built-in addition support is available.
+inline constexpr bool has_builtin_add = SAFELY_HAS_STDCKDINT ||
+                                        SAFELY_HAS_BUILTIN_ADD_OVERFLOW ||
+                                        SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS;
+
+/// Indicates whether built-in subtraction support is available.
+inline constexpr bool has_builtin_sub = SAFELY_HAS_STDCKDINT ||
+                                        SAFELY_HAS_BUILTIN_SUB_OVERFLOW ||
+                                        SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS;
+
+/// Indicates whether built-in multiplication support is available.
+inline constexpr bool has_builtin_mul = SAFELY_HAS_STDCKDINT ||
+                                        SAFELY_HAS_BUILTIN_MUL_OVERFLOW ||
+                                        SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS;
+
+}  // namespace safely
