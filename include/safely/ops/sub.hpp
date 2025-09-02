@@ -11,66 +11,50 @@
 #include <safely/predef.hpp>
 
 #if SAFELY_HAS_STDCKDINT
-  #include <stdbool.h>
+  #include <stdbool.h>  // NOLINT(*-deprecated-headers)
   #include <stdckdint.h>
 #endif
 
 namespace safely {
 namespace detail {
 
-// See SEI CERT C Coding Standard INT32-C.
-template <typename T, signed_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_sub_check_overflow(const T lhs,
-                                                        const T rhs) noexcept
-    -> bool
+template <typename T, integer_concept_t<T> = 0>
+[[nodiscard]] constexpr auto check_sub_overflow_sw(const T lhs,
+                                                   const T rhs) noexcept -> bool
 {
-  constexpr auto t_min = std::numeric_limits<T>::min();
-  constexpr auto t_max = std::numeric_limits<T>::max();
+  if constexpr (is_signed_integer_v<T>) {
+    constexpr auto t_min = std::numeric_limits<T>::min();
+    constexpr auto t_max = std::numeric_limits<T>::max();
 
-  if (rhs > 0 && lhs < add_unchecked(t_min, rhs)) SAFELY_ATTR_UNLIKELY {
-    return true;
+    return (rhs > 0 && lhs < add_unchecked(t_min, rhs)) ||
+           (rhs < 0 && lhs > add_unchecked(t_max, rhs));
   }
-
-  if (rhs < 0 && lhs > add_unchecked(t_max, rhs)) SAFELY_ATTR_UNLIKELY {
-    return true;
+  else {
+    return rhs > lhs;
   }
-
-  return false;
-}
-
-// See SEI CERT C Coding Standard INT30-C.
-template <typename T, unsigned_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_sub_check_overflow(const T lhs,
-                                                        const T rhs) noexcept
-    -> bool
-{
-  return rhs > lhs;
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_sub(const T lhs, const T rhs) noexcept
+[[nodiscard]] constexpr auto sub_sw(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
-  if (generic_sub_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+  if (check_sub_overflow_sw(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
     return std::nullopt;
   }
 
   return sub_unchecked(lhs, rhs);
 }
 
-template <typename T, signed_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
-    -> T
+template <typename T, integer_concept_t<T> = 0>
+[[nodiscard]] constexpr auto sub_wrap_sw(const T lhs, const T rhs) noexcept -> T
 {
-  // Note, this static_cast is implementation defined.
-  return static_cast<T>(sub_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
-}
-
-template <typename T, unsigned_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
-    -> T
-{
-  return sub_unchecked(lhs, rhs);
+  if constexpr (is_signed_integer_v<T>) {
+    // Note, this static_cast is implementation defined.
+    return static_cast<T>(sub_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
+  }
+  else {
+    return sub_unchecked(lhs, rhs);
+  }
 }
 
 }  // namespace detail
@@ -106,7 +90,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
     result = diff;
   }
 #else
-  result = detail::generic_sub(lhs, rhs);
+  result = detail::sub_sw(lhs, rhs);
 #endif
 
   return result;
@@ -120,7 +104,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 /// \param[in] rhs The second term.
 ///
 /// \return
-/// The (potentially wrapped) difference.
+/// The wrapped difference.
 template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto sub_wrap(const T lhs, const T rhs) noexcept -> T
 {
@@ -133,7 +117,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
   (void) detail::msvc_sub_overflow(lhs, rhs, diff);
 #else
-  diff = detail::generic_sub_wrap(lhs, rhs);
+  diff = detail::sub_wrap_sw(lhs, rhs);
 #endif
 
   return diff;
@@ -147,22 +131,20 @@ template <typename T, detail::integer_concept_t<T> = 0>
 /// \param[in] rhs The second term.
 ///
 /// \return
-/// The (potentially saturated) difference.
+/// The saturated difference.
 template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto sub_sat(const T lhs, const T rhs) noexcept -> T
 {
-  constexpr auto t_min = std::numeric_limits<T>::min();
-  constexpr auto t_max = std::numeric_limits<T>::max();
-
-  if (const auto diff = sub(lhs, rhs)) {
+  if (const auto diff = sub(lhs, rhs)) SAFELY_ATTR_LIKELY {
     return *diff;
   }
 
   if constexpr (detail::is_unsigned_integer_v<T>) {
-    return t_min;
+    return std::numeric_limits<T>::min();
   }
   else {
-    return lhs < 0 ? t_min : t_max;
+    return lhs < 0 ? std::numeric_limits<T>::min()
+                   : std::numeric_limits<T>::max();
   }
 }
 
