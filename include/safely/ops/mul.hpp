@@ -11,18 +11,16 @@
 #include <safely/predef.hpp>
 
 #if SAFELY_HAS_STDCKDINT
-  #include <stdbool.h>
+  #include <stdbool.h>  // NOLINT(*-deprecated-headers)
   #include <stdckdint.h>
 #endif
 
 namespace safely {
 namespace detail {
 
-// See SEI CERT C Coding Standard INT32-C.
 template <typename T, signed_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_mul_check_overflow(const T lhs,
-                                                        const T rhs) noexcept
-    -> bool
+[[nodiscard]] constexpr auto check_mul_overflow_sw(const T lhs,
+                                                   const T rhs) noexcept -> bool
 {
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
@@ -42,11 +40,9 @@ template <typename T, signed_integer_concept_t<T> = 0>
   return lhs != 0 && rhs < div_unchecked(t_max, lhs);
 }
 
-// See SEI CERT C Coding Standard INT30-C.
 template <typename T, unsigned_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_mul_check_overflow(const T lhs,
-                                                        const T rhs) noexcept
-    -> bool
+[[nodiscard]] constexpr auto check_mul_overflow_sw(const T lhs,
+                                                   const T rhs) noexcept -> bool
 {
   constexpr auto t_max = std::numeric_limits<T>::max();
 
@@ -54,29 +50,26 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_mul(const T lhs, const T rhs) noexcept
+[[nodiscard]] constexpr auto mul_sw(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
-  if (generic_mul_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+  if (check_mul_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
     return std::nullopt;
   }
 
   return mul_unchecked(lhs, rhs);
 }
 
-template <typename T, signed_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_mul_wrap(const T lhs, const T rhs) noexcept
-    -> T
+template <typename T, integer_concept_t<T> = 0>
+[[nodiscard]] constexpr auto mul_wrap_sw(const T lhs, const T rhs) noexcept -> T
 {
-  // Note, this static_cast is implementation defined.
-  return static_cast<T>(mul_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
-}
-
-template <typename T, unsigned_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto generic_mul_wrap(const T lhs, const T rhs) noexcept
-    -> T
-{
-  return mul_unchecked(lhs, rhs);
+  if constexpr (is_signed_integer_v<T>) {
+    // Note, this static_cast is implementation defined.
+    return static_cast<T>(mul_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
+  }
+  else {
+    return mul_unchecked(lhs, rhs);
+  }
 }
 
 }  // namespace detail
@@ -112,7 +105,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
     result = product;
   }
 #else
-  result = detail::generic_mul(lhs, rhs);
+  result = detail::mul_sw(lhs, rhs);
 #endif
 
   return result;
@@ -126,7 +119,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 /// \param[in] rhs The second factor.
 ///
 /// \return
-/// The (potentially wrapped) product.
+/// The wrapped product.
 template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul_wrap(const T lhs, const T rhs) noexcept -> T
 {
@@ -137,7 +130,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
   (void) __builtin_mul_overflow(lhs, rhs, &product);
 #else
-  product = detail::generic_mul_wrap(lhs, rhs);
+  product = detail::mul_wrap_sw(lhs, rhs);
 #endif
 
   return product;
@@ -151,22 +144,20 @@ template <typename T, detail::integer_concept_t<T> = 0>
 /// \param[in] rhs The second factor.
 ///
 /// \return
-/// The (potentially saturated) product.
+/// The saturated product.
 template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul_sat(const T lhs, const T rhs) noexcept -> T
 {
-  constexpr auto t_min = std::numeric_limits<T>::min();
-  constexpr auto t_max = std::numeric_limits<T>::max();
-
-  if (const auto product = mul(lhs, rhs)) {
+  if (const auto product = mul(lhs, rhs)) SAFELY_ATTR_LIKELY {
     return *product;
   }
 
   if constexpr (detail::is_unsigned_integer_v<T>) {
-    return t_max;
+    return std::numeric_limits<T>::max();
   }
   else {
-    return (lhs < 0) != (rhs < 0) ? t_min : t_max;
+    return (lhs < 0) != (rhs < 0) ? std::numeric_limits<T>::min()
+                                  : std::numeric_limits<T>::max();
   }
 }
 
