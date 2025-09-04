@@ -39,6 +39,9 @@ using safely::mul_sat;
 // <safely/ops/rem.hpp>
 using safely::rem;
 
+// <safely/ops/shl.hpp>
+using safely::shl;
+
 // <safely/ops/sub.hpp>
 using safely::sub;
 using safely::sub_wrap;
