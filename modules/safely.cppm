@@ -16,6 +16,10 @@ using safely::add;
 using safely::add_wrap;
 using safely::add_sat;
 
+// <safely/ops/cast.hpp>
+using safely::cast;
+using safely::in_range;
+
 // <safely/ops/cmp.hpp>
 using safely::cmp_eq;
 using safely::cmp_ne;
