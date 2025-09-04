@@ -8,8 +8,6 @@ export module safely;
 
 export namespace safely {
 
-// <safely/error.hpp>
-using safely::errc;
 
 // <safely/ops/add.hpp>
 using safely::add;
