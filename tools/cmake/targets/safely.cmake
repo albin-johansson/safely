@@ -21,6 +21,7 @@ target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_D
                "${PROJECT_SOURCE_DIR}/include/ops/mul.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/rem.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/shl.hpp"
+               "${PROJECT_SOURCE_DIR}/include/ops/shr.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/sub.hpp"
                "${PROJECT_SOURCE_DIR}/include/predef.hpp"
                "${PROJECT_SOURCE_DIR}/include/primitives.hpp"

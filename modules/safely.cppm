@@ -40,6 +40,9 @@ using safely::rem;
 // <safely/ops/shl.hpp>
 using safely::shl;
 
+// <safely/ops/shr.hpp>
+using safely::shr;
+
 // <safely/ops/sub.hpp>
 using safely::sub;
 using safely::sub_wrap;
