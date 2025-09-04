@@ -16,6 +16,14 @@ using safely::add;
 using safely::add_wrap;
 using safely::add_sat;
 
+// <safely/ops/cmp.hpp>
+using safely::cmp_eq;
+using safely::cmp_ne;
+using safely::cmp_lt;
+using safely::cmp_le;
+using safely::cmp_gt;
+using safely::cmp_ge;
+
 // <safely/ops/div.hpp>
 using safely::div;
 
