@@ -75,6 +75,10 @@ template <typename T>
 using unsigned_integer_concept_t =
     std::enable_if_t<is_unsigned_integer_v<T>, int>;
 
+template <typename... Ts>
+using variadic_integer_concept_t =
+    std::enable_if_t<(is_integer_v<Ts> && ...), int>;
+
 // Used to obtain a suitable arithmetic type for T.
 // This is mainly used to avoid issues with implicit signed integer promotions
 // when dealing with small types such as char and short.
