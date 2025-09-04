@@ -163,9 +163,9 @@ BitFieldColonSpacing: Both
 
 # Digit separators
 IntegerLiteralSeparator:
-  Binary: -1
+  Binary: 0
   Decimal: 0
-  Hex: -1
+  Hex: 0
 
 # Strings
 BreakStringLiterals: false
