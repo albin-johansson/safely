@@ -53,7 +53,7 @@ template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul_sw(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
-  if (check_mul_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+  if (check_mul_overflow_sw(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
     return std::nullopt;
   }
 
