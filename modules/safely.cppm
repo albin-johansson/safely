@@ -17,6 +17,8 @@ using safely::add_sat;
 // <safely/ops/cast.hpp>
 using safely::cast;
 using safely::in_range;
+using safely::to_signed;
+using safely::to_unsigned;
 
 // <safely/ops/cmp.hpp>
 using safely::cmp_eq;

@@ -65,4 +65,34 @@ template <typename To,
   return static_cast<To>(from);
 }
 
+/// Performs a lossless signed-to-unsigned integral type conversion.
+///
+/// \tparam T A signed integer type.
+///
+/// \param[in] val The value to convert.
+///
+/// \return
+/// An unsigned value if successful; an empty optional otherwise.
+template <typename T, detail::signed_integer_concept_t<T> = 0>
+[[nodiscard]] constexpr auto to_unsigned(const T val) noexcept
+    -> std::optional<std::make_unsigned_t<T>>
+{
+  return cast<std::make_unsigned_t<T>>(val);
+}
+
+/// Performs a lossless unsigned-to-signed integral type conversion.
+///
+/// \tparam T An unsigned integer type.
+///
+/// \param[in] val The value to convert.
+///
+/// \return
+/// A signed value if successful; an empty optional otherwise.
+template <typename T, detail::unsigned_integer_concept_t<T> = 0>
+[[nodiscard]] constexpr auto to_signed(const T val) noexcept
+    -> std::optional<std::make_signed_t<T>>
+{
+  return cast<std::make_signed_t<T>>(val);
+}
+
 }  // namespace safely
