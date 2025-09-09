@@ -42,6 +42,12 @@ using safely::neg;
 // <safely/ops/rem.hpp>
 using safely::rem;
 
+// <safely/ops/rotl.hpp>
+using safely::rotl;
+
+// <safely/ops/rotr.hpp>
+using safely::rotr;
+
 // <safely/ops/shl.hpp>
 using safely::shl;
 

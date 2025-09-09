@@ -15,6 +15,8 @@
 #define SAFELY_HAS_BUILTIN_ADD_OVERFLOW 0
 #define SAFELY_HAS_BUILTIN_SUB_OVERFLOW 0
 #define SAFELY_HAS_BUILTIN_MUL_OVERFLOW 0
+#define SAFELY_HAS_BUILTIN_ROTATELEFT 0
+#define SAFELY_HAS_BUILTIN_ROTATERIGHT 0
 #define SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS 0
 
 #ifdef __has_cpp_attribute
@@ -53,6 +55,22 @@
     #if __has_builtin(__builtin_mul_overflow)
       #undef SAFELY_HAS_BUILTIN_MUL_OVERFLOW
       #define SAFELY_HAS_BUILTIN_MUL_OVERFLOW 1
+    #endif
+
+    #if __has_builtin(__builtin_rotateleft8) &&  \
+        __has_builtin(__builtin_rotateleft16) && \
+        __has_builtin(__builtin_rotateleft32) && \
+        __has_builtin(__builtin_rotateleft64)
+      #undef SAFELY_HAS_BUILTIN_ROTATELEFT
+      #define SAFELY_HAS_BUILTIN_ROTATELEFT 1
+    #endif
+
+    #if __has_builtin(__builtin_rotateright8) &&  \
+        __has_builtin(__builtin_rotateright16) && \
+        __has_builtin(__builtin_rotateright32) && \
+        __has_builtin(__builtin_rotateright64)
+      #undef SAFELY_HAS_BUILTIN_ROTATERIGHT
+      #define SAFELY_HAS_BUILTIN_ROTATERIGHT 1
     #endif
 
   #endif

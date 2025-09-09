@@ -9,6 +9,8 @@
 #include <safely/ops/mul.hpp>
 #include <safely/ops/neg.hpp>
 #include <safely/ops/rem.hpp>
+#include <safely/ops/rotl.hpp>
+#include <safely/ops/rotr.hpp>
 #include <safely/ops/shl.hpp>
 #include <safely/ops/shr.hpp>
 #include <safely/ops/sub.hpp>
