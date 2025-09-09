@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <safely/error.hpp>
 #include <safely/ops/add.hpp>
 #include <safely/ops/cast.hpp>
 #include <safely/ops/cmp.hpp>
