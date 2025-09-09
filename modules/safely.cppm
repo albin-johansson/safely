@@ -36,6 +36,9 @@ using safely::mul;
 using safely::mul_wrap;
 using safely::mul_sat;
 
+// <safely/ops/neg.hpp>
+using safely::neg;
+
 // <safely/ops/rem.hpp>
 using safely::rem;
 

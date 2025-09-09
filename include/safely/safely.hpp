@@ -7,6 +7,7 @@
 #include <safely/ops/cmp.hpp>
 #include <safely/ops/div.hpp>
 #include <safely/ops/mul.hpp>
+#include <safely/ops/neg.hpp>
 #include <safely/ops/rem.hpp>
 #include <safely/ops/shl.hpp>
 #include <safely/ops/shr.hpp>
