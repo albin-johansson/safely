@@ -18,6 +18,7 @@ endif ()
 
 project(safely CXX)
 
+include("tools/cmake/common.cmake")
 include("tools/cmake/targets/safely.cmake")
 
 if (SAFELY_ENABLE_MODULE)

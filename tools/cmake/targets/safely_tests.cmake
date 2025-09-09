@@ -41,49 +41,6 @@ target_link_libraries(safely_tests
                       safely::headers
                       )
 
-if (MSVC)
-  target_compile_definitions(safely_tests
-                             PRIVATE
-                             "WIN32_LEAN_AND_MEAN"
-                             "NOMINMAX"
-                             )
-
-  target_compile_options(safely_tests
-                         PRIVATE
-                         "/EHsc"
-                         "/MP"
-                         "/W4"
-                         "/bigobj"
-                         "/permissive-"
-                         "/Zc:preprocessor"
-                         "/Zc:__cplusplus"
-                         )
-else ()
-  target_compile_options(safely_tests
-                         PRIVATE
-                         "-Wall"
-                         "-Wextra"
-                         "-Wpedantic"
-                         "-Wconversion"
-                         "-Wsign-conversion"
-                         "-Wswitch-enum"
-                         "-Wold-style-cast"
-                         "-Wno-c++20-attribute-extensions"
-                         )
-
-  if (SAFELY_ENABLE_UBSAN)
-    target_compile_options(safely_tests
-                           PRIVATE
-                           "-fsanitize=undefined"
-                           "-fno-sanitize-recover"
-                           "-fno-omit-frame-pointer"
-                           )
-
-    target_link_options(safely_tests
-                        PRIVATE
-                        "-fsanitize=undefined"
-                        "-fno-sanitize-recover"
-                        "-fno-omit-frame-pointer"
-                        )
-  endif ()
-endif ()
+target_compile_definitions(safely_tests PRIVATE "${SAFELY_COMPILE_DEFINITIONS}")
+target_compile_options(safely_tests PRIVATE "${SAFELY_COMPILE_OPTIONS}")
+target_link_options(safely_tests PRIVATE "${SAFELY_LINK_OPTIONS}")
