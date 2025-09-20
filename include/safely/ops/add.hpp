@@ -5,7 +5,7 @@
 #include <limits>
 #include <optional>
 
-#include <safely/detail/msvc_overflow_intrinsics.hpp>
+#include <safely/detail/msvc.hpp>
 #include <safely/detail/traits.hpp>
 #include <safely/detail/unchecked.hpp>
 #include <safely/predef.hpp>
