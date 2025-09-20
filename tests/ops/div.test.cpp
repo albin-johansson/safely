@@ -4,15 +4,12 @@
 #include <optional>
 
 #include <gtest/gtest.h>
-#include <safely/detail/unchecked.hpp>
 #include <safely/ops/div.hpp>
 
 #include "common/types.hpp"
 
 namespace safely::tests {
 namespace {
-
-using detail::add_unchecked;
 
 template <typename T>
 class DivTest : public testing::Test
@@ -73,7 +70,7 @@ TYPED_TEST(DivSignedTest, Div)
   EXPECT_EQ(div(T {-100}, T {-4}), T {25});
 
   // (MIN + 1) / -1 = MAX
-  EXPECT_EQ(div(add_unchecked(t_min, T {1}), T {-1}), t_max);
+  EXPECT_EQ(div(static_cast<T>(t_min + T {1}), T {-1}), t_max);
 
   // MIN / MAX = -1
   EXPECT_EQ(div(t_min, t_max), T {-1});

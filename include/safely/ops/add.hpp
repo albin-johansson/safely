@@ -7,7 +7,6 @@
 
 #include <safely/detail/msvc.hpp>
 #include <safely/detail/traits.hpp>
-#include <safely/detail/unchecked.hpp>
 #include <safely/predef.hpp>
 
 #if SAFELY_HAS_STDCKDINT
@@ -26,11 +25,10 @@ template <typename T, integer_concept_t<T> = 0>
   constexpr auto t_max = std::numeric_limits<T>::max();
 
   if constexpr (is_signed_integer_v<T>) {
-    return (rhs > 0 && lhs > sub_unchecked(t_max, rhs)) ||
-           (rhs < 0 && lhs < sub_unchecked(t_min, rhs));
+    return (rhs > 0 && lhs > t_max - rhs) || (rhs < 0 && lhs < t_min - rhs);
   }
   else {
-    return lhs > sub_unchecked(t_max, rhs);
+    return lhs > t_max - rhs;
   }
 }
 
@@ -42,18 +40,21 @@ template <typename T, integer_concept_t<T> = 0>
     return std::nullopt;
   }
 
-  return add_unchecked(lhs, rhs);
+  using tmp_t = arithmetic_t<T>;
+  return static_cast<T>(static_cast<tmp_t>(lhs) + static_cast<tmp_t>(rhs));
 }
 
 template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto add_wrap_sw(const T lhs, const T rhs) noexcept -> T
 {
   if constexpr (is_signed_integer_v<T>) {
-    // Note, this static_cast is implementation defined.
-    return static_cast<T>(add_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
+    // Note, the static_cast to T is implementation defined.
+    using tmp_t = arithmetic_t<std::make_unsigned_t<T>>;
+    return static_cast<T>(static_cast<tmp_t>(lhs) + static_cast<tmp_t>(rhs));
   }
   else {
-    return add_unchecked(lhs, rhs);
+    using tmp_t = arithmetic_t<T>;
+    return static_cast<T>(static_cast<tmp_t>(lhs) + static_cast<tmp_t>(rhs));
   }
 }
 

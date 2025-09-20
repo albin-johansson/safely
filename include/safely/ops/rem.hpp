@@ -6,7 +6,6 @@
 #include <optional>
 
 #include <safely/detail/traits.hpp>
-#include <safely/detail/unchecked.hpp>
 #include <safely/predef.hpp>
 
 namespace safely {
@@ -36,7 +35,8 @@ template <typename T, detail::integer_concept_t<T> = 0>
     }
   }
 
-  return detail::rem_unchecked(lhs, rhs);
+  using tmp_t = detail::arithmetic_t<T>;
+  return static_cast<T>(static_cast<tmp_t>(lhs) % static_cast<tmp_t>(rhs));
 }
 
 }  // namespace safely

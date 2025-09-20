@@ -7,7 +7,6 @@
 
 #include <safely/detail/msvc.hpp>
 #include <safely/detail/traits.hpp>
-#include <safely/detail/unchecked.hpp>
 #include <safely/predef.hpp>
 
 #if SAFELY_HAS_STDCKDINT
@@ -29,15 +28,14 @@ template <typename T, signed_integer_concept_t<T> = 0>
   const auto is_rhs_positive = rhs > 0;
 
   if (is_lhs_positive) {
-    return is_rhs_positive ? lhs > div_unchecked(t_max, rhs)
-                           : rhs < div_unchecked(t_min, lhs);
+    return is_rhs_positive ? lhs > t_max / rhs : rhs < t_min / lhs;
   }
 
   if (is_rhs_positive) {
-    return lhs < div_unchecked(t_min, rhs);
+    return lhs < t_min / rhs;
   }
 
-  return lhs != 0 && rhs < div_unchecked(t_max, lhs);
+  return lhs != 0 && rhs < t_max / lhs;
 }
 
 template <typename T, unsigned_integer_concept_t<T> = 0>
@@ -46,7 +44,7 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 {
   constexpr auto t_max = std::numeric_limits<T>::max();
 
-  return rhs != 0 && lhs > div_unchecked(t_max, rhs);
+  return rhs != 0 && lhs > t_max / rhs;
 }
 
 template <typename T, integer_concept_t<T> = 0>
@@ -57,18 +55,21 @@ template <typename T, integer_concept_t<T> = 0>
     return std::nullopt;
   }
 
-  return mul_unchecked(lhs, rhs);
+  using tmp_t = arithmetic_t<T>;
+  return static_cast<T>(static_cast<tmp_t>(lhs) * static_cast<tmp_t>(rhs));
 }
 
 template <typename T, integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto mul_wrap_sw(const T lhs, const T rhs) noexcept -> T
 {
   if constexpr (is_signed_integer_v<T>) {
-    // Note, this static_cast is implementation defined.
-    return static_cast<T>(mul_unchecked(to_unsigned(lhs), to_unsigned(rhs)));
+    // Note, the static_cast to T is implementation defined.
+    using tmp_t = arithmetic_t<std::make_unsigned_t<T>>;
+    return static_cast<T>(static_cast<tmp_t>(lhs) * static_cast<tmp_t>(rhs));
   }
   else {
-    return mul_unchecked(lhs, rhs);
+    using tmp_t = arithmetic_t<T>;
+    return static_cast<T>(static_cast<tmp_t>(lhs) * static_cast<tmp_t>(rhs));
   }
 }
 

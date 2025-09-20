@@ -11,8 +11,6 @@
 namespace safely::tests {
 namespace {
 
-using detail::add_unchecked;
-
 template <typename T>
 class RemTest : public testing::Test
 {};

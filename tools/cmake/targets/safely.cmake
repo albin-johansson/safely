@@ -13,7 +13,6 @@ target_sources(safely INTERFACE FILE_SET "HEADERS" BASE_DIRS "${PROJECT_SOURCE_D
                FILES
                "${PROJECT_SOURCE_DIR}/include/detail/msvc.hpp"
                "${PROJECT_SOURCE_DIR}/include/detail/traits.hpp"
-               "${PROJECT_SOURCE_DIR}/include/detail/unchecked.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/add.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/cast.hpp"
                "${PROJECT_SOURCE_DIR}/include/ops/cmp.hpp"
