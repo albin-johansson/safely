@@ -8,7 +8,6 @@ export module safely;
 
 export namespace safely {
 
-
 // <safely/ops/add.hpp>
 using safely::add;
 using safely::add_wrap;

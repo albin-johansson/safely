@@ -29,8 +29,8 @@ template <typename T, detail::unsigned_integer_concept_t<T> = 0>
     return std::nullopt;
   }
 
-  using AT = detail::arithmetic_t<T>;
-  return static_cast<T>(static_cast<AT>(lhs) >> static_cast<AT>(rhs));
+  return static_cast<T>(static_cast<detail::arithmetic_t<T>>(lhs) >>
+                        static_cast<detail::arithmetic_t<T>>(rhs));
 }
 
 }  // namespace safely
