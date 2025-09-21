@@ -23,14 +23,14 @@ template <typename T, detail::integer_concept_t<T> = 0>
 {
   if constexpr (detail::is_signed_integer_v<T>) {
     if (val == std::numeric_limits<T>::min()) SAFELY_ATTR_UNLIKELY {
-      return std::nullopt;
+      return {};
     }
 
     return static_cast<T>(-val);
   }
   else {
     if (val != 0) SAFELY_ATTR_LIKELY {
-      return std::nullopt;
+      return {};
     }
 
     return T {0};

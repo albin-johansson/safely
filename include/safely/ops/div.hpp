@@ -42,7 +42,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 {
   // See SEI CERT C Coding Standard INT33-C.
   if (rhs == 0 || detail::div_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
-    return std::nullopt;
+    return {};
   }
 
   using tmp_t = detail::arithmetic_t<T>;

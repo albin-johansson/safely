@@ -59,7 +59,7 @@ template <typename To,
 [[nodiscard]] constexpr auto cast(const From from) noexcept -> std::optional<To>
 {
   if (!in_range<To>(from)) SAFELY_ATTR_UNLIKELY {
-    return std::nullopt;
+    return {};
   }
 
   return static_cast<To>(from);

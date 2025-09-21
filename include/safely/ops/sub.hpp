@@ -37,7 +37,7 @@ template <typename T, integer_concept_t<T> = 0>
     -> std::optional<T>
 {
   if (check_sub_overflow_sw(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
-    return std::nullopt;
+    return {};
   }
 
   using tmp_t = arithmetic_t<T>;

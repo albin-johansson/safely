@@ -26,7 +26,7 @@ template <typename T, detail::unsigned_integer_concept_t<T> = 0>
   constexpr T t_digits {std::numeric_limits<T>::digits};
 
   if (rhs >= t_digits) SAFELY_ATTR_UNLIKELY {
-    return std::nullopt;
+    return {};
   }
 
   return static_cast<T>(static_cast<detail::arithmetic_t<T>>(lhs) >>

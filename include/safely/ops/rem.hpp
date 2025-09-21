@@ -26,12 +26,12 @@ template <typename T, detail::integer_concept_t<T> = 0>
   if constexpr (detail::is_signed_integer_v<T>) {
     constexpr auto t_min = std::numeric_limits<T>::min();
     if (rhs == 0 || (lhs == t_min && rhs == -1)) SAFELY_ATTR_UNLIKELY {
-      return std::nullopt;
+      return {};
     }
   }
   else {
     if (rhs == 0) SAFELY_ATTR_UNLIKELY {
-      return std::nullopt;
+      return {};
     }
   }
 
