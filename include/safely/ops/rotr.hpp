@@ -12,7 +12,7 @@ namespace safely {
 namespace detail {
 
 template <typename T, unsigned_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto rotr_sw(const T val, const T n) noexcept -> T
+[[nodiscard]] constexpr auto generic_rotr(const T val, const T n) noexcept -> T
 {
   if (n == 0) SAFELY_ATTR_UNLIKELY {
     return val;
@@ -53,7 +53,7 @@ template <typename T, detail::unsigned_integer_concept_t<T> = 0>
     return __builtin_rotateright8(val, n);
   }
 #else
-  return detail::rotr_sw(val, n);
+  return detail::generic_rotr(val, n);
 #endif
 }
 

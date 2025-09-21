@@ -18,26 +18,22 @@ namespace safely {
 namespace detail {
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto check_sub_overflow_sw(const T lhs,
-                                                   const T rhs) noexcept -> bool
+[[nodiscard]] constexpr auto generic_sub(const T lhs, const T rhs) noexcept
+    -> std::optional<T>
 {
   if constexpr (is_signed_integer_v<T>) {
     constexpr auto t_min = std::numeric_limits<T>::min();
     constexpr auto t_max = std::numeric_limits<T>::max();
 
-    return (rhs > 0 && lhs < t_min + rhs) || (rhs < 0 && lhs > t_max + rhs);
+    if ((rhs > 0 && lhs < t_min + rhs) || (rhs < 0 && lhs > t_max + rhs))
+        SAFELY_ATTR_UNLIKELY {
+      return {};
+    }
   }
   else {
-    return rhs > lhs;
-  }
-}
-
-template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto sub_sw(const T lhs, const T rhs) noexcept
-    -> std::optional<T>
-{
-  if (check_sub_overflow_sw(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
-    return {};
+    if (rhs > lhs) SAFELY_ATTR_UNLIKELY {
+      return {};
+    }
   }
 
   using tmp_t = arithmetic_t<T>;
@@ -45,7 +41,8 @@ template <typename T, integer_concept_t<T> = 0>
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto sub_wrap_sw(const T lhs, const T rhs) noexcept -> T
+[[nodiscard]] constexpr auto generic_sub_wrap(const T lhs, const T rhs) noexcept
+    -> T
 {
   if constexpr (is_signed_integer_v<T>) {
     // Note, the static_cast to T is implementation defined.
@@ -91,7 +88,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
     result = diff;
   }
 #else
-  result = detail::sub_sw(lhs, rhs);
+  result = detail::generic_sub(lhs, rhs);
 #endif
 
   return result;
@@ -118,7 +115,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 #elif SAFELY_HAS_MSVC_OVERFLOW_INTRINSICS
   (void) detail::msvc_sub_overflow(lhs, rhs, diff);
 #else
-  diff = detail::sub_wrap_sw(lhs, rhs);
+  diff = detail::generic_sub_wrap(lhs, rhs);
 #endif
 
   return diff;

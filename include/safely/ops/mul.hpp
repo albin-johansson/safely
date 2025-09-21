@@ -18,8 +18,9 @@ namespace safely {
 namespace detail {
 
 template <typename T, signed_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto check_mul_overflow_sw(const T lhs,
-                                                   const T rhs) noexcept -> bool
+[[nodiscard]] constexpr auto generic_check_mul_overflow(const T lhs,
+                                                        const T rhs) noexcept
+    -> bool
 {
   constexpr auto t_min = std::numeric_limits<T>::min();
   constexpr auto t_max = std::numeric_limits<T>::max();
@@ -39,8 +40,9 @@ template <typename T, signed_integer_concept_t<T> = 0>
 }
 
 template <typename T, unsigned_integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto check_mul_overflow_sw(const T lhs,
-                                                   const T rhs) noexcept -> bool
+[[nodiscard]] constexpr auto generic_check_mul_overflow(const T lhs,
+                                                        const T rhs) noexcept
+    -> bool
 {
   constexpr auto t_max = std::numeric_limits<T>::max();
 
@@ -48,10 +50,10 @@ template <typename T, unsigned_integer_concept_t<T> = 0>
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto mul_sw(const T lhs, const T rhs) noexcept
+[[nodiscard]] constexpr auto generic_mul(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
-  if (check_mul_overflow_sw(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
+  if (generic_check_mul_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
     return {};
   }
 
@@ -60,7 +62,8 @@ template <typename T, integer_concept_t<T> = 0>
 }
 
 template <typename T, integer_concept_t<T> = 0>
-[[nodiscard]] constexpr auto mul_wrap_sw(const T lhs, const T rhs) noexcept -> T
+[[nodiscard]] constexpr auto generic_mul_wrap(const T lhs, const T rhs) noexcept
+    -> T
 {
   if constexpr (is_signed_integer_v<T>) {
     // Note, the static_cast to T is implementation defined.
@@ -106,7 +109,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
     result = product;
   }
 #else
-  result = detail::mul_sw(lhs, rhs);
+  result = detail::generic_mul(lhs, rhs);
 #endif
 
   return result;
@@ -131,7 +134,7 @@ template <typename T, detail::integer_concept_t<T> = 0>
 #elif SAFELY_HAS_BUILTIN_ADD_OVERFLOW
   (void) __builtin_mul_overflow(lhs, rhs, &product);
 #else
-  product = detail::mul_wrap_sw(lhs, rhs);
+  product = detail::generic_mul_wrap(lhs, rhs);
 #endif
 
   return product;
