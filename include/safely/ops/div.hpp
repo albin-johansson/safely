@@ -16,7 +16,6 @@ template <typename T, integer_concept_t<T> = 0>
                                                 const T rhs) noexcept -> bool
 {
   if constexpr (is_signed_integer_v<T>) {
-    // See SEI CERT C Coding Standard INT32-C.
     constexpr auto t_min = std::numeric_limits<T>::min();
     return lhs == t_min && rhs == -1;
   }
@@ -40,7 +39,6 @@ template <typename T, detail::integer_concept_t<T> = 0>
 [[nodiscard]] constexpr auto div(const T lhs, const T rhs) noexcept
     -> std::optional<T>
 {
-  // See SEI CERT C Coding Standard INT33-C.
   if (rhs == 0 || detail::div_check_overflow(lhs, rhs)) SAFELY_ATTR_UNLIKELY {
     return {};
   }
