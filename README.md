@@ -20,3 +20,7 @@ Safely is a C++ library that provides safe numeric APIs, free of undefined behav
 * [GCC intrinsics](https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html)
 * [MSVC intrinsics](https://learn.microsoft.com/en-us/cpp/intrinsics/compiler-intrinsics)
 * [boostorg/safe_numerics](https://github.com/boostorg/safe_numerics)
+
+## Disclaimer
+
+This is a side project developed for fun, don't expect consistent updates or support.
